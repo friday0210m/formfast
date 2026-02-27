@@ -347,18 +347,22 @@
         <div id="fieldList" class="space-y-2">
           <!-- Fields will be added here -->
         </div>
-        <div class="flex gap-2 mt-4">
-          <select id="fieldType" class="flex-1 px-3 py-2 border rounded-lg">
-            <option value="text">文本 (Text)</option>
-            <option value="email">邮箱 (Email)</option>
-            <option value="tel">电话 (Phone)</option>
-            <option value="number">数字 (Number)</option>
-            <option value="textarea">多行文本 (Textarea)</option>
-            <option value="select">下拉选择 (Select)</option>
-          </select>
-          <input type="text" id="fieldName" placeholder="字段名称 (如: username)" class="flex-1 px-3 py-2 border rounded-lg">
-          <input type="text" id="fieldLabel" placeholder="显示标签 (如: 用户名)" class="flex-1 px-3 py-2 border rounded-lg">
-          <button onclick="addField()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">添加</button>
+        <div class="space-y-3 mt-4">
+          <div class="flex gap-2">
+            <select id="fieldType" class="w-32 px-3 py-2 border rounded-lg text-sm">
+              <option value="text">文本</option>
+              <option value="email">邮箱</option>
+              <option value="tel">电话</option>
+              <option value="number">数字</option>
+              <option value="textarea">多行</option>
+              <option value="select">下拉</option>
+            </select>
+            <input type="text" id="fieldName" placeholder="字段名称 (如: username)" class="flex-1 px-3 py-2 border rounded-lg text-sm">
+          </div>
+          <div class="flex gap-2">
+            <input type="text" id="fieldLabel" placeholder="显示标签 (如: 用户名)" class="flex-1 px-3 py-2 border rounded-lg text-sm">
+            <button onclick="addField()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium whitespace-nowrap">添加字段</button>
+          </div>
         </div>
         <div class="flex items-center gap-2 mt-2">
           <input type="checkbox" id="fieldRequired" class="w-4 h-4">
