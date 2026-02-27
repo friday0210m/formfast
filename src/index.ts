@@ -33,8 +33,7 @@ app.post('/api/forms', async (req, res) => {
       id: formId,
       name,
       apiKey,
-      allowedOrigins: JSON.stringify(allowedOrigins),
-      createdAt: Math.floor(Date.now() / 1000),
+      allowedOrigins,
     });
     
     res.json({
@@ -56,16 +55,16 @@ app.post('/f/:formId', async (req, res) => {
     
     // Check origin
     const origin = req.headers.origin || req.headers.referer || '';
-    const form = await db.select().from(forms).where(eq(forms.id, formId)).get();
+    const formResult = await db.select().from(forms).where(eq(forms.id, formId)).limit(1);
+    const form = formResult[0];
     
     if (!form) {
       return res.status(404).json({ error: 'Form not found' });
     }
     
     // Check allowed origins
-    const allowedOrigins = JSON.parse(form.allowedOrigins);
-    if (!allowedOrigins.includes('*')) {
-      const isAllowed = allowedOrigins.some((allowed: string) => 
+    if (!form.allowedOrigins.includes('*')) {
+      const isAllowed = form.allowedOrigins.some((allowed: string) => 
         origin.includes(allowed)
       );
       if (!isAllowed) {
@@ -78,10 +77,9 @@ app.post('/f/:formId', async (req, res) => {
     await db.insert(submissions).values({
       id: submissionId,
       formId,
-      data: JSON.stringify(req.body),
+      data: req.body,
       ipAddress: req.ip || '',
       userAgent: req.headers['user-agent'] || '',
-      createdAt: Math.floor(Date.now() / 1000),
     });
     
     res.json({ 
@@ -105,23 +103,17 @@ app.get('/api/forms/:formId/submissions', async (req, res) => {
       return res.status(401).json({ error: 'API key required' });
     }
     
-    const form = await db.select().from(forms).where(eq(forms.id, formId)).get();
+    const formResult = await db.select().from(forms).where(eq(forms.id, formId)).limit(1);
+    const form = formResult[0];
     
     if (!form || form.apiKey !== apiKey) {
       return res.status(401).json({ error: 'Invalid API key' });
     }
     
     const data = await db.select().from(submissions)
-      .where(eq(submissions.formId, formId))
-      .all();
+      .where(eq(submissions.formId, formId));
     
-    // Parse JSON data
-    const submissionsWithParsedData = data.map(s => ({
-      ...s,
-      data: JSON.parse(s.data),
-    }));
-    
-    res.json({ submissions: submissionsWithParsedData });
+    res.json({ submissions: data });
   } catch (error) {
     console.error('Get submissions error:', error);
     res.status(500).json({ error: 'Failed to get submissions' });
