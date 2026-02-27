@@ -333,7 +333,55 @@
         <h2 class="text-2xl font-bold" id="detailFormName">表单详情</h2>
         <button onclick="hideFormDetail()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
       </div>
-      <div class="space-y-4">
+      
+      <!-- Tabs -->
+      <div class="flex border-b border-gray-200 mb-4">
+        <button onclick="showTab('builder')" id="tab-builder" class="px-4 py-2 font-medium text-indigo-600 border-b-2 border-indigo-600">表单构建器</button>
+        <button onclick="showTab('code')" id="tab-code" class="px-4 py-2 font-medium text-gray-500 hover:text-gray-700">HTML代码</button>
+        <button onclick="showTab('endpoint')" id="tab-endpoint" class="px-4 py-2 font-medium text-gray-500 hover:text-gray-700">端点信息</button>
+      </div>
+      
+      <!-- Builder Tab -->
+      <div id="content-builder" class="space-y-4">
+        <p class="text-sm text-gray-600">选择需要的字段，自动生成表单代码：</p>
+        <div id="fieldList" class="space-y-2">
+          <!-- Fields will be added here -->
+        </div>
+        <div class="flex gap-2 mt-4">
+          <select id="fieldType" class="flex-1 px-3 py-2 border rounded-lg">
+            <option value="text">文本 (Text)</option>
+            <option value="email">邮箱 (Email)</option>
+            <option value="tel">电话 (Phone)</option>
+            <option value="number">数字 (Number)</option>
+            <option value="textarea">多行文本 (Textarea)</option>
+            <option value="select">下拉选择 (Select)</option>
+          </select>
+          <input type="text" id="fieldName" placeholder="字段名称 (如: username)" class="flex-1 px-3 py-2 border rounded-lg">
+          <input type="text" id="fieldLabel" placeholder="显示标签 (如: 用户名)" class="flex-1 px-3 py-2 border rounded-lg">
+          <button onclick="addField()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">添加</button>
+        </div>
+        <div class="flex items-center gap-2 mt-2">
+          <input type="checkbox" id="fieldRequired" class="w-4 h-4">
+          <label for="fieldRequired" class="text-sm text-gray-600">必填字段</label>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg mt-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">预览代码</label>
+          <pre id="builderCode" class="bg-white p-3 rounded border text-sm overflow-x-auto"></pre>
+          <button onclick="copyBuilderCode()" class="mt-2 bg-gray-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700">复制代码</button>
+        </div>
+      </div>
+      
+      <!-- Code Tab -->
+      <div id="content-code" class="space-y-4 hidden">
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <label class="block text-sm font-medium text-gray-700 mb-1">基础 HTML 代码（可自定义修改）</label>
+          <pre id="detailHtml" class="bg-white p-3 rounded border text-sm overflow-x-auto"></pre>
+          <button onclick="copyHtml()" class="mt-2 bg-gray-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700">复制代码</button>
+        </div>
+      </div>
+      
+      <!-- Endpoint Tab -->
+      <div id="content-endpoint" class="space-y-4 hidden">
         <div class="bg-gray-50 p-4 rounded-lg">
           <label class="block text-sm font-medium text-gray-700 mb-1">表单端点</label>
           <div class="flex gap-2">
@@ -342,14 +390,17 @@
           </div>
         </div>
         <div class="bg-gray-50 p-4 rounded-lg">
-          <label class="block text-sm font-medium text-gray-700 mb-1">HTML 代码</label>
-          <pre id="detailHtml" class="bg-white p-3 rounded border text-sm overflow-x-auto"></pre>
-          <button onclick="copyHtml()" class="mt-2 bg-gray-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700">复制代码</button>
+          <label class="block text-sm font-medium text-gray-700 mb-1">API Key（查看数据时需要）</label>
+          <div class="flex gap-2">
+            <code id="detailApiKey" class="flex-1 bg-white px-3 py-2 rounded border text-sm"></code>
+            <button onclick="copyApiKey()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700">复制</button>
+          </div>
         </div>
-        <button onclick="viewSubmissions()" class="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition">
-          查看提交数据
-        </button>
       </div>
+      
+      <button onclick="viewSubmissions()" class="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition mt-6">
+        查看提交数据
+      </button>
     </div>
   </div>
 
@@ -397,6 +448,7 @@
     const API_BASE = window.location.origin;
     let currentForm = null;
     let forms = JSON.parse(localStorage.getItem('formfast_forms') || '[]');
+    let formFields = []; // 存储表单构建器的字段
 
     // Modal functions
     function showDashboard() {
@@ -417,15 +469,134 @@
     }
     function showFormDetail(form) {
       currentForm = form;
+      formFields = []; // 重置字段
       document.getElementById('detailFormName').textContent = form.name;
       const endpoint = `${API_BASE}/f/${form.id}`;
       document.getElementById('detailEndpoint').textContent = endpoint;
-      document.getElementById('detailHtml').textContent = `<form action="${endpoint}" method="POST">
+      document.getElementById('detailApiKey').textContent = form.apiKey;
+      
+      // 默认添加常用字段
+      formFields = [
+        { type: 'text', name: 'name', label: '姓名', required: true },
+        { type: 'email', name: 'email', label: '邮箱', required: true },
+        { type: 'textarea', name: 'message', label: '留言', required: false }
+      ];
+      renderFields();
+      updateBuilderCode();
+      
+      // 基础代码
+      document.getElementById('detailHtml').textContent = `<!-- 基础示例 -->
+<form action="${endpoint}" method="POST">
   <input type="email" name="email" placeholder="your@email.com" required>
   <textarea name="message" placeholder="Your message..."></textarea>
   <button type="submit">Send</button>
 </form>`;
+      
       document.getElementById('formDetailModal').classList.add('active');
+      showTab('builder'); // 默认显示构建器
+    }
+    
+    // Tab 切换
+    function showTab(tabName) {
+      // 隐藏所有内容
+      ['builder', 'code', 'endpoint'].forEach(t => {
+        document.getElementById(`content-${t}`).classList.add('hidden');
+        document.getElementById(`tab-${t}`).classList.remove('text-indigo-600', 'border-b-2', 'border-indigo-600');
+        document.getElementById(`tab-${t}`).classList.add('text-gray-500');
+      });
+      
+      // 显示选中内容
+      document.getElementById(`content-${tabName}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabName}`).classList.add('text-indigo-600', 'border-b-2', 'border-indigo-600');
+      document.getElementById(`tab-${tabName}`).classList.remove('text-gray-500');
+    }
+    
+    // 添加字段
+    function addField() {
+      const type = document.getElementById('fieldType').value;
+      const name = document.getElementById('fieldName').value.trim();
+      const label = document.getElementById('fieldLabel').value.trim();
+      const required = document.getElementById('fieldRequired').checked;
+      
+      if (!name || !label) {
+        alert('请输入字段名称和标签');
+        return;
+      }
+      
+      formFields.push({ type, name, label, required });
+      
+      // 清空输入
+      document.getElementById('fieldName').value = '';
+      document.getElementById('fieldLabel').value = '';
+      document.getElementById('fieldRequired').checked = false;
+      
+      renderFields();
+      updateBuilderCode();
+    }
+    
+    // 删除字段
+    function removeField(index) {
+      formFields.splice(index, 1);
+      renderFields();
+      updateBuilderCode();
+    }
+    
+    // 渲染字段列表
+    function renderFields() {
+      const container = document.getElementById('fieldList');
+      if (formFields.length === 0) {
+        container.innerHTML = '<p class="text-gray-400 text-sm">暂无字段，请添加</p>';
+        return;
+      }
+      
+      container.innerHTML = formFields.map((field, index) => `
+        <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+          <div class="flex items-center gap-3">
+            <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">${field.type}</span>
+            <span class="font-medium">${field.label}</span>
+            <span class="text-gray-400 text-sm">(${field.name})</span>
+            ${field.required ? '<span class="text-red-500 text-xs">*必填</span>' : ''}
+          </div>
+          <button onclick="removeField(${index})" class="text-red-500 hover:text-red-700 text-sm">删除</button>
+        </div>
+      `).join('');
+    }
+    
+    // 更新构建器代码
+    function updateBuilderCode() {
+      const endpoint = `${API_BASE}/f/${currentForm.id}`;
+      let html = `<form action="${endpoint}" method="POST">\n`;
+      
+      formFields.forEach(field => {
+        const required = field.required ? ' required' : '';
+        switch(field.type) {
+          case 'textarea':
+            html += `  <textarea name="${field.name}" placeholder="${field.label}"${required}></textarea>\n`;
+            break;
+          case 'select':
+            html += `  <select name="${field.name}"${required}>\n    <option value="">请选择${field.label}</option>\n  </select>\n`;
+            break;
+          default:
+            html += `  <input type="${field.type}" name="${field.name}" placeholder="${field.label}"${required}>\n`;
+        }
+      });
+      
+      html += `  <button type="submit">提交</button>\n</form>`;
+      document.getElementById('builderCode').textContent = html;
+    }
+    
+    // 复制构建器代码
+    function copyBuilderCode() {
+      const code = document.getElementById('builderCode').textContent;
+      navigator.clipboard.writeText(code);
+      alert('已复制到剪贴板');
+    }
+    
+    // 复制 API Key
+    function copyApiKey() {
+      const key = document.getElementById('detailApiKey').textContent;
+      navigator.clipboard.writeText(key);
+      alert('已复制');
     }
     function hideFormDetail() {
       document.getElementById('formDetailModal').classList.remove('active');
