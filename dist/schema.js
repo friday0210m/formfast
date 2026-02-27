@@ -1,17 +1,17 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
-export const forms = sqliteTable('forms', {
+import { pgTable, text, timestamp, jsonb } from 'drizzle-orm/pg-core';
+export const forms = pgTable('forms', {
     id: text('id').primaryKey(),
     name: text('name').notNull(),
     apiKey: text('api_key').notNull().unique(),
-    allowedOrigins: text('allowed_origins').notNull().default('["*"]'),
-    createdAt: integer('created_at').notNull().default(0),
+    allowedOrigins: jsonb('allowed_origins').notNull().default(['*']),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
 });
-export const submissions = sqliteTable('submissions', {
+export const submissions = pgTable('submissions', {
     id: text('id').primaryKey(),
-    formId: text('form_id').notNull(),
-    data: text('data').notNull(),
+    formId: text('form_id').notNull().references(() => forms.id),
+    data: jsonb('data').notNull(),
     ipAddress: text('ip_address'),
     userAgent: text('user_agent'),
-    createdAt: integer('created_at').notNull().default(0),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 //# sourceMappingURL=schema.js.map

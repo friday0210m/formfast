@@ -1,26 +1,40 @@
-import Database from 'better-sqlite3';
-import { drizzle } from 'drizzle-orm/better-sqlite3';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 import * as schema from './schema.js';
-const sqlite = new Database('./data.sqlite');
-export const db = drizzle(sqlite, { schema });
-// Create tables if not exist
-sqlite.exec(`
-  CREATE TABLE IF NOT EXISTS forms (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    api_key TEXT NOT NULL UNIQUE,
-    allowed_origins TEXT NOT NULL DEFAULT '["*"]',
-    created_at INTEGER NOT NULL DEFAULT (unixepoch())
-  );
-
-  CREATE TABLE IF NOT EXISTS submissions (
-    id TEXT PRIMARY KEY,
-    form_id TEXT NOT NULL,
-    data TEXT NOT NULL,
-    ip_address TEXT,
-    user_agent TEXT,
-    created_at INTEGER NOT NULL DEFAULT (unixepoch()),
-    FOREIGN KEY (form_id) REFERENCES forms(id)
-  );
-`);
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+    console.error('ERROR: DATABASE_URL environment variable is required');
+    process.exit(1);
+}
+const client = postgres(connectionString);
+export const db = drizzle(client, { schema });
+// 自动创建表
+async function initDatabase() {
+    try {
+        await client `
+      CREATE TABLE IF NOT EXISTS forms (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        api_key TEXT NOT NULL UNIQUE,
+        allowed_origins JSONB NOT NULL DEFAULT '["*"]',
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+    `;
+        await client `
+      CREATE TABLE IF NOT EXISTS submissions (
+        id TEXT PRIMARY KEY,
+        form_id TEXT NOT NULL REFERENCES forms(id),
+        data JSONB NOT NULL,
+        ip_address TEXT,
+        user_agent TEXT,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+    `;
+        console.log('✅ Database tables initialized');
+    }
+    catch (error) {
+        console.error('Failed to initialize database:', error);
+    }
+}
+initDatabase();
 //# sourceMappingURL=db.js.map

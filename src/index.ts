@@ -63,8 +63,9 @@ app.post('/f/:formId', async (req, res) => {
     }
     
     // Check allowed origins
-    if (!form.allowedOrigins.includes('*')) {
-      const isAllowed = form.allowedOrigins.some((allowed: string) => 
+    const allowedOrigins = form.allowedOrigins as string[];
+    if (!allowedOrigins.includes('*')) {
+      const isAllowed = allowedOrigins.some((allowed: string) => 
         origin.includes(allowed)
       );
       if (!isAllowed) {

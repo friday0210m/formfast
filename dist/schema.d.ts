@@ -1,12 +1,12 @@
-export declare const forms: import("drizzle-orm/sqlite-core").SQLiteTableWithColumns<{
+export declare const forms: import("drizzle-orm/pg-core").PgTableWithColumns<{
     name: "forms";
     schema: undefined;
     columns: {
-        id: import("drizzle-orm/sqlite-core").SQLiteColumn<{
+        id: import("drizzle-orm/pg-core").PgColumn<{
             name: "id";
             tableName: "forms";
             dataType: "string";
-            columnType: "SQLiteText";
+            columnType: "PgText";
             data: string;
             driverParam: string;
             notNull: true;
@@ -18,14 +18,12 @@ export declare const forms: import("drizzle-orm/sqlite-core").SQLiteTableWithCol
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {
-            length: number | undefined;
-        }>;
-        name: import("drizzle-orm/sqlite-core").SQLiteColumn<{
+        }, {}, {}>;
+        name: import("drizzle-orm/pg-core").PgColumn<{
             name: "name";
             tableName: "forms";
             dataType: "string";
-            columnType: "SQLiteText";
+            columnType: "PgText";
             data: string;
             driverParam: string;
             notNull: true;
@@ -37,14 +35,12 @@ export declare const forms: import("drizzle-orm/sqlite-core").SQLiteTableWithCol
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {
-            length: number | undefined;
-        }>;
-        apiKey: import("drizzle-orm/sqlite-core").SQLiteColumn<{
+        }, {}, {}>;
+        apiKey: import("drizzle-orm/pg-core").PgColumn<{
             name: "api_key";
             tableName: "forms";
             dataType: "string";
-            columnType: "SQLiteText";
+            columnType: "PgText";
             data: string;
             driverParam: string;
             notNull: true;
@@ -56,35 +52,31 @@ export declare const forms: import("drizzle-orm/sqlite-core").SQLiteTableWithCol
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {
-            length: number | undefined;
-        }>;
-        allowedOrigins: import("drizzle-orm/sqlite-core").SQLiteColumn<{
+        }, {}, {}>;
+        allowedOrigins: import("drizzle-orm/pg-core").PgColumn<{
             name: "allowed_origins";
             tableName: "forms";
-            dataType: "string";
-            columnType: "SQLiteText";
-            data: string;
-            driverParam: string;
+            dataType: "json";
+            columnType: "PgJsonb";
+            data: unknown;
+            driverParam: unknown;
             notNull: true;
             hasDefault: true;
             isPrimaryKey: false;
             isAutoincrement: false;
             hasRuntimeDefault: false;
-            enumValues: [string, ...string[]];
+            enumValues: undefined;
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {
-            length: number | undefined;
-        }>;
-        createdAt: import("drizzle-orm/sqlite-core").SQLiteColumn<{
+        }, {}, {}>;
+        createdAt: import("drizzle-orm/pg-core").PgColumn<{
             name: "created_at";
             tableName: "forms";
-            dataType: "number";
-            columnType: "SQLiteInteger";
-            data: number;
-            driverParam: number;
+            dataType: "date";
+            columnType: "PgTimestamp";
+            data: Date;
+            driverParam: string;
             notNull: true;
             hasDefault: true;
             isPrimaryKey: false;
@@ -96,17 +88,17 @@ export declare const forms: import("drizzle-orm/sqlite-core").SQLiteTableWithCol
             generated: undefined;
         }, {}, {}>;
     };
-    dialect: "sqlite";
+    dialect: "pg";
 }>;
-export declare const submissions: import("drizzle-orm/sqlite-core").SQLiteTableWithColumns<{
+export declare const submissions: import("drizzle-orm/pg-core").PgTableWithColumns<{
     name: "submissions";
     schema: undefined;
     columns: {
-        id: import("drizzle-orm/sqlite-core").SQLiteColumn<{
+        id: import("drizzle-orm/pg-core").PgColumn<{
             name: "id";
             tableName: "submissions";
             dataType: "string";
-            columnType: "SQLiteText";
+            columnType: "PgText";
             data: string;
             driverParam: string;
             notNull: true;
@@ -118,14 +110,12 @@ export declare const submissions: import("drizzle-orm/sqlite-core").SQLiteTableW
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {
-            length: number | undefined;
-        }>;
-        formId: import("drizzle-orm/sqlite-core").SQLiteColumn<{
+        }, {}, {}>;
+        formId: import("drizzle-orm/pg-core").PgColumn<{
             name: "form_id";
             tableName: "submissions";
             dataType: "string";
-            columnType: "SQLiteText";
+            columnType: "PgText";
             data: string;
             driverParam: string;
             notNull: true;
@@ -137,33 +127,29 @@ export declare const submissions: import("drizzle-orm/sqlite-core").SQLiteTableW
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {
-            length: number | undefined;
-        }>;
-        data: import("drizzle-orm/sqlite-core").SQLiteColumn<{
+        }, {}, {}>;
+        data: import("drizzle-orm/pg-core").PgColumn<{
             name: "data";
             tableName: "submissions";
-            dataType: "string";
-            columnType: "SQLiteText";
-            data: string;
-            driverParam: string;
+            dataType: "json";
+            columnType: "PgJsonb";
+            data: unknown;
+            driverParam: unknown;
             notNull: true;
             hasDefault: false;
             isPrimaryKey: false;
             isAutoincrement: false;
             hasRuntimeDefault: false;
-            enumValues: [string, ...string[]];
+            enumValues: undefined;
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {
-            length: number | undefined;
-        }>;
-        ipAddress: import("drizzle-orm/sqlite-core").SQLiteColumn<{
+        }, {}, {}>;
+        ipAddress: import("drizzle-orm/pg-core").PgColumn<{
             name: "ip_address";
             tableName: "submissions";
             dataType: "string";
-            columnType: "SQLiteText";
+            columnType: "PgText";
             data: string;
             driverParam: string;
             notNull: false;
@@ -175,14 +161,12 @@ export declare const submissions: import("drizzle-orm/sqlite-core").SQLiteTableW
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {
-            length: number | undefined;
-        }>;
-        userAgent: import("drizzle-orm/sqlite-core").SQLiteColumn<{
+        }, {}, {}>;
+        userAgent: import("drizzle-orm/pg-core").PgColumn<{
             name: "user_agent";
             tableName: "submissions";
             dataType: "string";
-            columnType: "SQLiteText";
+            columnType: "PgText";
             data: string;
             driverParam: string;
             notNull: false;
@@ -194,16 +178,14 @@ export declare const submissions: import("drizzle-orm/sqlite-core").SQLiteTableW
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {
-            length: number | undefined;
-        }>;
-        createdAt: import("drizzle-orm/sqlite-core").SQLiteColumn<{
+        }, {}, {}>;
+        createdAt: import("drizzle-orm/pg-core").PgColumn<{
             name: "created_at";
             tableName: "submissions";
-            dataType: "number";
-            columnType: "SQLiteInteger";
-            data: number;
-            driverParam: number;
+            dataType: "date";
+            columnType: "PgTimestamp";
+            data: Date;
+            driverParam: string;
             notNull: true;
             hasDefault: true;
             isPrimaryKey: false;
@@ -215,7 +197,7 @@ export declare const submissions: import("drizzle-orm/sqlite-core").SQLiteTableW
             generated: undefined;
         }, {}, {}>;
     };
-    dialect: "sqlite";
+    dialect: "pg";
 }>;
 export type Form = typeof forms.$inferSelect;
 export type NewForm = typeof forms.$inferInsert;

@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { db } from './db.js';
 import { forms, submissions } from './schema.js';
 import { eq } from 'drizzle-orm';
+import { createCheckoutSession } from './stripe.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
@@ -26,8 +27,7 @@ app.post('/api/forms', async (req, res) => {
             id: formId,
             name,
             apiKey,
-            allowedOrigins: JSON.stringify(allowedOrigins),
-            createdAt: Math.floor(Date.now() / 1000),
+            allowedOrigins,
         });
         res.json({
             id: formId,
@@ -47,12 +47,13 @@ app.post('/f/:formId', async (req, res) => {
         const { formId } = req.params;
         // Check origin
         const origin = req.headers.origin || req.headers.referer || '';
-        const form = await db.select().from(forms).where(eq(forms.id, formId)).get();
+        const formResult = await db.select().from(forms).where(eq(forms.id, formId)).limit(1);
+        const form = formResult[0];
         if (!form) {
             return res.status(404).json({ error: 'Form not found' });
         }
         // Check allowed origins
-        const allowedOrigins = JSON.parse(form.allowedOrigins);
+        const allowedOrigins = form.allowedOrigins;
         if (!allowedOrigins.includes('*')) {
             const isAllowed = allowedOrigins.some((allowed) => origin.includes(allowed));
             if (!isAllowed) {
@@ -64,10 +65,9 @@ app.post('/f/:formId', async (req, res) => {
         await db.insert(submissions).values({
             id: submissionId,
             formId,
-            data: JSON.stringify(req.body),
+            data: req.body,
             ipAddress: req.ip || '',
             userAgent: req.headers['user-agent'] || '',
-            createdAt: Math.floor(Date.now() / 1000),
         });
         res.json({
             success: true,
@@ -88,23 +88,33 @@ app.get('/api/forms/:formId/submissions', async (req, res) => {
         if (!apiKey) {
             return res.status(401).json({ error: 'API key required' });
         }
-        const form = await db.select().from(forms).where(eq(forms.id, formId)).get();
+        const formResult = await db.select().from(forms).where(eq(forms.id, formId)).limit(1);
+        const form = formResult[0];
         if (!form || form.apiKey !== apiKey) {
             return res.status(401).json({ error: 'Invalid API key' });
         }
         const data = await db.select().from(submissions)
-            .where(eq(submissions.formId, formId))
-            .all();
-        // Parse JSON data
-        const submissionsWithParsedData = data.map(s => ({
-            ...s,
-            data: JSON.parse(s.data),
-        }));
-        res.json({ submissions: submissionsWithParsedData });
+            .where(eq(submissions.formId, formId));
+        res.json({ submissions: data });
     }
     catch (error) {
         console.error('Get submissions error:', error);
         res.status(500).json({ error: 'Failed to get submissions' });
+    }
+});
+// Payment: Create checkout session
+app.post('/api/checkout', async (req, res) => {
+    try {
+        const { formId, apiKey } = req.body;
+        if (!formId || !apiKey) {
+            return res.status(400).json({ error: 'formId and apiKey required' });
+        }
+        const session = await createCheckoutSession(formId, apiKey);
+        res.json({ url: session.url });
+    }
+    catch (error) {
+        console.error('Checkout error:', error);
+        res.status(500).json({ error: 'Failed to create checkout session' });
     }
 });
 // Serve frontend

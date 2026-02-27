@@ -1,6 +1,6 @@
-import Database from 'better-sqlite3';
+import postgres from 'postgres';
 import * as schema from './schema.js';
-export declare const db: import("drizzle-orm/better-sqlite3").BetterSQLite3Database<typeof schema> & {
-    $client: Database.Database;
+export declare const db: import("drizzle-orm/postgres-js").PostgresJsDatabase<typeof schema> & {
+    $client: postgres.Sql<{}>;
 };
 //# sourceMappingURL=db.d.ts.map
