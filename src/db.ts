@@ -9,24 +9,84 @@ if (!connectionString) {
 
 const client = postgres(connectionString, { ssl: { rejectUnauthorized: false } });
 
-// 直接导出 client 用于查询
 export { client };
 
-// 简化的数据库操作
+// 数据库操作
 export const db = {
-  async insertForms(data: any) {
+  // Users
+  async createUser(data: { email: string; googleId?: string; stripeCustomerId?: string }) {
     return await client`
-      INSERT INTO forms (id, name, api_key, allowed_origins)
-      VALUES (${data.id}, ${data.name}, ${data.apiKey}, ${JSON.stringify(data.allowedOrigins)})
+      INSERT INTO users (email, google_id, stripe_customer_id, subscription_status)
+      VALUES (${data.email}, ${data.googleId || null}, ${data.stripeCustomerId || null}, 'free')
+      ON CONFLICT (email) DO UPDATE SET
+        google_id = COALESCE(EXCLUDED.google_id, users.google_id),
+        updated_at = NOW()
       RETURNING *;
     `;
   },
+  
+  async getUserByEmail(email: string) {
+    const result = await client`SELECT * FROM users WHERE email = ${email}`;
+    return result[0];
+  },
+  
+  async getUserByGoogleId(googleId: string) {
+    const result = await client`SELECT * FROM users WHERE google_id = ${googleId}`;
+    return result[0];
+  },
+  
+  async updateUserSubscription(email: string, data: { 
+    subscriptionStatus: string; 
+    stripeCustomerId?: string;
+    stripeSubscriptionId?: string;
+  }) {
+    return await client`
+      UPDATE users 
+      SET subscription_status = ${data.subscriptionStatus},
+          stripe_customer_id = COALESCE(${data.stripeCustomerId || null}, stripe_customer_id),
+          stripe_subscription_id = COALESCE(${data.stripeSubscriptionId || null}, stripe_subscription_id),
+          updated_at = NOW()
+      WHERE email = ${email}
+      RETURNING *;
+    `;
+  },
+  
+  // Forms (updated with user_email)
+  async insertForms(data: any) {
+    return await client`
+      INSERT INTO forms (id, name, api_key, allowed_origins, user_email)
+      VALUES (${data.id}, ${data.name}, ${data.apiKey}, ${JSON.stringify(data.allowedOrigins)}, ${data.userEmail || null})
+      RETURNING *;
+    `;
+  },
+  
   async selectForms(where?: any) {
     if (where?.id) {
       return await client`SELECT * FROM forms WHERE id = ${where.id}`;
     }
-    return await client`SELECT * FROM forms`;
+    if (where?.userEmail) {
+      return await client`SELECT * FROM forms WHERE user_email = ${where.userEmail} ORDER BY created_at DESC`;
+    }
+    return await client`SELECT * FROM forms ORDER BY created_at DESC`;
   },
+  
+  async countFormsByUser(userEmail: string) {
+    const result = await client`SELECT COUNT(*) as count FROM forms WHERE user_email = ${userEmail}`;
+    return parseInt(result[0].count);
+  },
+  
+  async deleteForm(formId: string) {
+    await client`DELETE FROM submissions WHERE form_id = ${formId}`;
+    return await client`DELETE FROM forms WHERE id = ${formId}`;
+  },
+  
+  async updateForm(formId: string, data: { name?: string }) {
+    if (data.name) {
+      return await client`UPDATE forms SET name = ${data.name} WHERE id = ${formId}`;
+    }
+  },
+  
+  // Submissions
   async insertSubmissions(data: any) {
     return await client`
       INSERT INTO submissions (id, form_id, data, ip_address, user_agent)
@@ -34,21 +94,36 @@ export const db = {
       RETURNING *;
     `;
   },
+  
   async selectSubmissions(formId: string) {
     return await client`
       SELECT * FROM submissions WHERE form_id = ${formId} ORDER BY created_at DESC;
     `;
   },
-  async deleteForm(formId: string) {
-    // 先删除关联的提交数据
-    await client`DELETE FROM submissions WHERE form_id = ${formId}`;
-    // 再删除表单
-    return await client`DELETE FROM forms WHERE id = ${formId}`;
+  
+  // Auth codes for email verification
+  async createAuthCode(data: { email: string; code: string }) {
+    // 删除旧验证码
+    await client`DELETE FROM auth_codes WHERE email = ${data.email}`;
+    // 创建新验证码（10分钟有效）
+    return await client`
+      INSERT INTO auth_codes (email, code, expires_at)
+      VALUES (${data.email}, ${data.code}, NOW() + INTERVAL '10 minutes')
+      RETURNING *;
+    `;
   },
-  async updateForm(formId: string, data: { name?: string }) {
-    if (data.name) {
-      return await client`UPDATE forms SET name = ${data.name} WHERE id = ${formId}`;
+  
+  async verifyAuthCode(email: string, code: string) {
+    const result = await client`
+      SELECT * FROM auth_codes 
+      WHERE email = ${email} AND code = ${code} AND expires_at > NOW()
+    `;
+    if (result[0]) {
+      // 验证成功后删除
+      await client`DELETE FROM auth_codes WHERE email = ${email}`;
+      return true;
     }
+    return false;
   }
 };
 
@@ -59,16 +134,44 @@ export async function initDatabase(): Promise<void> {
     try {
       console.log('Initializing database...');
       
+      // Users table
+      await client`
+        CREATE TABLE IF NOT EXISTS users (
+          id SERIAL PRIMARY KEY,
+          email TEXT UNIQUE NOT NULL,
+          google_id TEXT UNIQUE,
+          stripe_customer_id TEXT,
+          stripe_subscription_id TEXT,
+          subscription_status TEXT NOT NULL DEFAULT 'free',
+          created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+          updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+        );
+      `;
+      
+      // Auth codes table
+      await client`
+        CREATE TABLE IF NOT EXISTS auth_codes (
+          id SERIAL PRIMARY KEY,
+          email TEXT NOT NULL,
+          code TEXT NOT NULL,
+          expires_at TIMESTAMP NOT NULL,
+          created_at TIMESTAMP NOT NULL DEFAULT NOW()
+        );
+      `;
+      
+      // Forms table (with user_email)
       await client`
         CREATE TABLE IF NOT EXISTS forms (
           id TEXT PRIMARY KEY,
           name TEXT NOT NULL,
           api_key TEXT NOT NULL UNIQUE,
           allowed_origins JSONB NOT NULL DEFAULT '["*"]',
+          user_email TEXT REFERENCES users(email),
           created_at TIMESTAMP NOT NULL DEFAULT NOW()
         );
       `;
       
+      // Submissions table
       await client`
         CREATE TABLE IF NOT EXISTS submissions (
           id TEXT PRIMARY KEY,
