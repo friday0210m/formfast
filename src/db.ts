@@ -12,8 +12,8 @@ if (!connectionString) {
 const client = postgres(connectionString);
 export const db = drizzle(client, { schema });
 
-// 自动创建表
-async function initDatabase() {
+// 自动创建表 - 返回 Promise 确保初始化完成
+export async function initDatabase(): Promise<void> {
   try {
     await client`
       CREATE TABLE IF NOT EXISTS forms (
@@ -38,8 +38,7 @@ async function initDatabase() {
     
     console.log('✅ Database tables initialized');
   } catch (error) {
-    console.error('Failed to initialize database:', error);
+    console.error('❌ Failed to initialize database:', error);
+    throw error;
   }
 }
-
-initDatabase();

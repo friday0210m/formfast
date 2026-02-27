@@ -3,7 +3,7 @@ import cors from 'cors';
 import { nanoid } from 'nanoid';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { db } from './db.js';
+import { db, initDatabase } from './db.js';
 import { forms, submissions } from './schema.js';
 import { eq } from 'drizzle-orm';
 import { createCheckoutSession } from './stripe.js';
@@ -122,8 +122,19 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`🚀 FormFast API running on port ${PORT}`);
-    console.log(`📱 Open http://localhost:${PORT} to get started`);
-});
+// 等待数据库初始化完成后启动服务器
+async function startServer() {
+    try {
+        await initDatabase();
+        app.listen(PORT, () => {
+            console.log(`🚀 FormFast API running on port ${PORT}`);
+            console.log(`📱 Open http://localhost:${PORT} to get started`);
+        });
+    }
+    catch (error) {
+        console.error('❌ Failed to start server:', error);
+        process.exit(1);
+    }
+}
+startServer();
 //# sourceMappingURL=index.js.map
