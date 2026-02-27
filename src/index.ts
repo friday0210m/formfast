@@ -4,8 +4,6 @@ import { nanoid } from 'nanoid';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { db, initDatabase } from './db.js';
-import { forms, submissions } from './schema.js';
-import { eq } from 'drizzle-orm';
 import { createCheckoutSession } from './stripe.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -29,7 +27,7 @@ app.post('/api/forms', async (req, res) => {
     const formId = nanoid(12);
     const apiKey = nanoid(32);
     
-    await db.insert(forms).values({
+    const result = await db.insertForms({
       id: formId,
       name,
       apiKey,
@@ -42,9 +40,9 @@ app.post('/api/forms', async (req, res) => {
       apiKey,
       endpoint: `/f/${formId}`,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Create form error:', error);
-    res.status(500).json({ error: 'Failed to create form' });
+    res.status(500).json({ error: 'Failed to create form', details: error.message });
   }
 });
 
@@ -53,17 +51,15 @@ app.post('/f/:formId', async (req, res) => {
   try {
     const { formId } = req.params;
     
-    // Check origin
     const origin = req.headers.origin || req.headers.referer || '';
-    const formResult = await db.select().from(forms).where(eq(forms.id, formId)).limit(1);
-    const form = formResult[0];
+    const forms = await db.selectForms({ id: formId });
+    const form = forms[0];
     
     if (!form) {
       return res.status(404).json({ error: 'Form not found' });
     }
     
-    // Check allowed origins
-    const allowedOrigins = form.allowedOrigins as string[];
+    const allowedOrigins = form.allowed_origins as string[];
     if (!allowedOrigins.includes('*')) {
       const isAllowed = allowedOrigins.some((allowed: string) => 
         origin.includes(allowed)
@@ -73,9 +69,8 @@ app.post('/f/:formId', async (req, res) => {
       }
     }
     
-    // Save submission
     const submissionId = nanoid(16);
-    await db.insert(submissions).values({
+    await db.insertSubmissions({
       id: submissionId,
       formId,
       data: req.body,
@@ -88,13 +83,13 @@ app.post('/f/:formId', async (req, res) => {
       message: 'Submission received',
       id: submissionId,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Submit error:', error);
-    res.status(500).json({ error: 'Failed to submit' });
+    res.status(500).json({ error: 'Failed to submit', details: error.message });
   }
 });
 
-// Get form submissions (protected by API key)
+// Get form submissions
 app.get('/api/forms/:formId/submissions', async (req, res) => {
   try {
     const { formId } = req.params;
@@ -104,24 +99,28 @@ app.get('/api/forms/:formId/submissions', async (req, res) => {
       return res.status(401).json({ error: 'API key required' });
     }
     
-    const formResult = await db.select().from(forms).where(eq(forms.id, formId)).limit(1);
-    const form = formResult[0];
+    const forms = await db.selectForms({ id: formId });
+    const form = forms[0];
     
-    if (!form || form.apiKey !== apiKey) {
+    if (!form || form.api_key !== apiKey) {
       return res.status(401).json({ error: 'Invalid API key' });
     }
     
-    const data = await db.select().from(submissions)
-      .where(eq(submissions.formId, formId));
+    const data = await db.selectSubmissions(formId);
     
-    res.json({ submissions: data });
-  } catch (error) {
+    res.json({ 
+      submissions: data.map((s: any) => ({
+        ...s,
+        data: s.data,
+      }))
+    });
+  } catch (error: any) {
     console.error('Get submissions error:', error);
-    res.status(500).json({ error: 'Failed to get submissions' });
+    res.status(500).json({ error: 'Failed to get submissions', details: error.message });
   }
 });
 
-// Payment: Create checkout session
+// Payment
 app.post('/api/checkout', async (req, res) => {
   try {
     const { formId, apiKey } = req.body;
@@ -132,9 +131,9 @@ app.post('/api/checkout', async (req, res) => {
     
     const session = await createCheckoutSession(formId, apiKey);
     res.json({ url: session.url });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Checkout error:', error);
-    res.status(500).json({ error: 'Failed to create checkout session' });
+    res.status(500).json({ error: 'Failed to create checkout session', details: error.message });
   }
 });
 
@@ -145,12 +144,10 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-// 先启动服务器，后台初始化数据库
 app.listen(PORT, () => {
   console.log(`🚀 FormFast API running on port ${PORT}`);
   console.log(`📱 Open http://localhost:${PORT} to get started`);
   
-  // 后台初始化数据库
   initDatabase().catch(err => {
     console.error('❌ Database initialization failed:', err);
   });

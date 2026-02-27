@@ -1,7 +1,11 @@
 import postgres from 'postgres';
-import * as schema from './schema.js';
-export declare const db: import("drizzle-orm/postgres-js").PostgresJsDatabase<typeof schema> & {
-    $client: postgres.Sql<{}>;
+declare const client: postgres.Sql<{}>;
+export { client };
+export declare const db: {
+    insertForms(data: any): Promise<postgres.RowList<postgres.Row[]>>;
+    selectForms(where?: any): Promise<postgres.RowList<postgres.Row[]>>;
+    insertSubmissions(data: any): Promise<postgres.RowList<postgres.Row[]>>;
+    selectSubmissions(formId: string): Promise<postgres.RowList<postgres.Row[]>>;
 };
 export declare function initDatabase(): Promise<void>;
 //# sourceMappingURL=db.d.ts.map

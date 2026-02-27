@@ -1,6 +1,4 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import * as schema from './schema.js';
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -10,13 +8,46 @@ if (!connectionString) {
 }
 
 const client = postgres(connectionString);
-export const db = drizzle(client, { schema });
 
-// 自动创建表 - 在后台运行，不阻塞启动
+// 直接导出 client 用于查询
+export { client };
+
+// 简化的数据库操作
+export const db = {
+  async insertForms(data: any) {
+    return await client`
+      INSERT INTO forms (id, name, api_key, allowed_origins)
+      VALUES (${data.id}, ${data.name}, ${data.apiKey}, ${JSON.stringify(data.allowedOrigins)})
+      RETURNING *;
+    `;
+  },
+  async selectForms(where?: any) {
+    if (where?.id) {
+      return await client`SELECT * FROM forms WHERE id = ${where.id}`;
+    }
+    return await client`SELECT * FROM forms`;
+  },
+  async insertSubmissions(data: any) {
+    return await client`
+      INSERT INTO submissions (id, form_id, data, ip_address, user_agent)
+      VALUES (${data.id}, ${data.formId}, ${JSON.stringify(data.data)}, ${data.ipAddress}, ${data.userAgent})
+      RETURNING *;
+    `;
+  },
+  async selectSubmissions(formId: string) {
+    return await client`
+      SELECT * FROM submissions WHERE form_id = ${formId} ORDER BY created_at DESC;
+    `;
+  }
+};
+
+// 自动创建表
 export async function initDatabase(): Promise<void> {
-  let retries = 5;
+  let retries = 10;
   while (retries > 0) {
     try {
+      console.log('Initializing database...');
+      
       await client`
         CREATE TABLE IF NOT EXISTS forms (
           id TEXT PRIMARY KEY,
@@ -40,13 +71,14 @@ export async function initDatabase(): Promise<void> {
       
       console.log('✅ Database tables initialized');
       return;
-    } catch (error) {
-      console.error(`❌ Database init failed (${retries} retries left):`, error);
+    } catch (error: any) {
+      console.error(`❌ Database init failed (${retries} retries left):`, error.message);
       retries--;
       if (retries > 0) {
-        await new Promise(r => setTimeout(r, 2000));
+        await new Promise(r => setTimeout(r, 3000));
+      } else {
+        throw error;
       }
     }
   }
-  throw new Error('Failed to initialize database after retries');
 }
