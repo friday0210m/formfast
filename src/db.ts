@@ -12,33 +12,41 @@ if (!connectionString) {
 const client = postgres(connectionString);
 export const db = drizzle(client, { schema });
 
-// 自动创建表 - 返回 Promise 确保初始化完成
+// 自动创建表 - 在后台运行，不阻塞启动
 export async function initDatabase(): Promise<void> {
-  try {
-    await client`
-      CREATE TABLE IF NOT EXISTS forms (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        api_key TEXT NOT NULL UNIQUE,
-        allowed_origins JSONB NOT NULL DEFAULT '["*"]',
-        created_at TIMESTAMP NOT NULL DEFAULT NOW()
-      );
-    `;
-    
-    await client`
-      CREATE TABLE IF NOT EXISTS submissions (
-        id TEXT PRIMARY KEY,
-        form_id TEXT NOT NULL REFERENCES forms(id),
-        data JSONB NOT NULL,
-        ip_address TEXT,
-        user_agent TEXT,
-        created_at TIMESTAMP NOT NULL DEFAULT NOW()
-      );
-    `;
-    
-    console.log('✅ Database tables initialized');
-  } catch (error) {
-    console.error('❌ Failed to initialize database:', error);
-    throw error;
+  let retries = 5;
+  while (retries > 0) {
+    try {
+      await client`
+        CREATE TABLE IF NOT EXISTS forms (
+          id TEXT PRIMARY KEY,
+          name TEXT NOT NULL,
+          api_key TEXT NOT NULL UNIQUE,
+          allowed_origins JSONB NOT NULL DEFAULT '["*"]',
+          created_at TIMESTAMP NOT NULL DEFAULT NOW()
+        );
+      `;
+      
+      await client`
+        CREATE TABLE IF NOT EXISTS submissions (
+          id TEXT PRIMARY KEY,
+          form_id TEXT NOT NULL REFERENCES forms(id),
+          data JSONB NOT NULL,
+          ip_address TEXT,
+          user_agent TEXT,
+          created_at TIMESTAMP NOT NULL DEFAULT NOW()
+        );
+      `;
+      
+      console.log('✅ Database tables initialized');
+      return;
+    } catch (error) {
+      console.error(`❌ Database init failed (${retries} retries left):`, error);
+      retries--;
+      if (retries > 0) {
+        await new Promise(r => setTimeout(r, 2000));
+      }
+    }
   }
+  throw new Error('Failed to initialize database after retries');
 }

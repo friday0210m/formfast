@@ -145,18 +145,13 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-// 等待数据库初始化完成后启动服务器
-async function startServer() {
-  try {
-    await initDatabase();
-    app.listen(PORT, () => {
-      console.log(`🚀 FormFast API running on port ${PORT}`);
-      console.log(`📱 Open http://localhost:${PORT} to get started`);
-    });
-  } catch (error) {
-    console.error('❌ Failed to start server:', error);
-    process.exit(1);
-  }
-}
-
-startServer();
+// 先启动服务器，后台初始化数据库
+app.listen(PORT, () => {
+  console.log(`🚀 FormFast API running on port ${PORT}`);
+  console.log(`📱 Open http://localhost:${PORT} to get started`);
+  
+  // 后台初始化数据库
+  initDatabase().catch(err => {
+    console.error('❌ Database initialization failed:', err);
+  });
+});
