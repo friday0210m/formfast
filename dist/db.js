@@ -4,7 +4,7 @@ if (!connectionString) {
     console.error('ERROR: DATABASE_URL environment variable is required');
     process.exit(1);
 }
-const client = postgres(connectionString);
+const client = postgres(connectionString, { ssl: { rejectUnauthorized: false } });
 // 直接导出 client 用于查询
 export { client };
 // 简化的数据库操作

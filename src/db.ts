@@ -7,7 +7,7 @@ if (!connectionString) {
   process.exit(1);
 }
 
-const client = postgres(connectionString);
+const client = postgres(connectionString, { ssl: { rejectUnauthorized: false } });
 
 // 直接导出 client 用于查询
 export { client };
