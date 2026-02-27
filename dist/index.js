@@ -101,6 +101,49 @@ app.get('/api/forms/:formId/submissions', async (req, res) => {
         res.status(500).json({ error: 'Failed to get submissions', details: error.message });
     }
 });
+// Delete form
+app.delete('/api/forms/:formId', async (req, res) => {
+    try {
+        const { formId } = req.params;
+        const apiKey = req.headers['x-api-key'];
+        if (!apiKey) {
+            return res.status(401).json({ error: 'API key required' });
+        }
+        const forms = await db.selectForms({ id: formId });
+        const form = forms[0];
+        if (!form || form.api_key !== apiKey) {
+            return res.status(401).json({ error: 'Invalid API key' });
+        }
+        await db.deleteForm(formId);
+        res.json({ success: true, message: 'Form deleted' });
+    }
+    catch (error) {
+        console.error('Delete form error:', error);
+        res.status(500).json({ error: 'Failed to delete form', details: error.message });
+    }
+});
+// Update form name
+app.patch('/api/forms/:formId', async (req, res) => {
+    try {
+        const { formId } = req.params;
+        const { name } = req.body;
+        const apiKey = req.headers['x-api-key'];
+        if (!apiKey) {
+            return res.status(401).json({ error: 'API key required' });
+        }
+        const forms = await db.selectForms({ id: formId });
+        const form = forms[0];
+        if (!form || form.api_key !== apiKey) {
+            return res.status(401).json({ error: 'Invalid API key' });
+        }
+        await db.updateForm(formId, { name });
+        res.json({ success: true, message: 'Form updated', name });
+    }
+    catch (error) {
+        console.error('Update form error:', error);
+        res.status(500).json({ error: 'Failed to update form', details: error.message });
+    }
+});
 // Payment
 app.post('/api/checkout', async (req, res) => {
     try {

@@ -6,6 +6,10 @@ export declare const db: {
     selectForms(where?: any): Promise<postgres.RowList<postgres.Row[]>>;
     insertSubmissions(data: any): Promise<postgres.RowList<postgres.Row[]>>;
     selectSubmissions(formId: string): Promise<postgres.RowList<postgres.Row[]>>;
+    deleteForm(formId: string): Promise<postgres.RowList<postgres.Row[]>>;
+    updateForm(formId: string, data: {
+        name?: string;
+    }): Promise<postgres.RowList<postgres.Row[]> | undefined>;
 };
 export declare function initDatabase(): Promise<void>;
 //# sourceMappingURL=db.d.ts.map

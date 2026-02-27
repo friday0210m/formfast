@@ -398,9 +398,37 @@
         </div>
       </div>
       
-      <button onclick="viewSubmissions()" class="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition mt-6">
-        查看提交数据
-      </button>
+      <div class="flex gap-3 mt-6">
+        <button onclick="viewSubmissions()" class="flex-1 bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition">
+          查看提交数据
+        </button>
+        <button onclick="showRenameForm()" class="px-4 bg-gray-600 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition">
+          重命名
+        </button>
+        <button onclick="deleteForm()" class="px-4 bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-700 transition">
+          删除
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Rename Modal -->
+  <div id="renameModal" class="modal">
+    <div class="modal-content p-6 max-w-md">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">重命名表单</h2>
+        <button onclick="hideRenameForm()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">新名称</label>
+          <input type="text" id="renameInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <div id="renameError" class="text-red-500 text-sm hidden"></div>
+        <button onclick="confirmRename()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition">
+          确认修改
+        </button>
+      </div>
     </div>
   </div>
 
@@ -598,6 +626,84 @@
       navigator.clipboard.writeText(key);
       alert('已复制');
     }
+    
+    // 显示重命名表单
+    function showRenameForm() {
+      if (!currentForm) return;
+      document.getElementById('renameInput').value = currentForm.name;
+      document.getElementById('renameError').classList.add('hidden');
+      document.getElementById('renameModal').classList.add('active');
+    }
+    
+    // 隐藏重命名表单
+    function hideRenameForm() {
+      document.getElementById('renameModal').classList.remove('active');
+    }
+    
+    // 确认重命名
+    async function confirmRename() {
+      if (!currentForm) return;
+      const newName = document.getElementById('renameInput').value.trim();
+      const errorDiv = document.getElementById('renameError');
+      
+      if (!newName) {
+        errorDiv.textContent = '请输入新名称';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+      
+      try {
+        const res = await fetch(`${API_BASE}/api/forms/${currentForm.id}`, {
+          method: 'PATCH',
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-API-Key': currentForm.apiKey 
+          },
+          body: JSON.stringify({ name: newName })
+        });
+        
+        if (!res.ok) throw new Error('重命名失败');
+        
+        // 更新本地数据
+        currentForm.name = newName;
+        const index = forms.findIndex(f => f.id === currentForm.id);
+        if (index >= 0) forms[index].name = newName;
+        localStorage.setItem('formfast_forms', JSON.stringify(forms));
+        
+        document.getElementById('detailFormName').textContent = newName;
+        hideRenameForm();
+        alert('重命名成功');
+      } catch (err) {
+        errorDiv.textContent = '重命名失败: ' + err.message;
+        errorDiv.classList.remove('hidden');
+      }
+    }
+    
+    // 删除表单
+    async function deleteForm() {
+      if (!currentForm) return;
+      if (!confirm(`确定要删除表单 "${currentForm.name}" 吗？此操作不可恢复！`)) return;
+      
+      try {
+        const res = await fetch(`${API_BASE}/api/forms/${currentForm.id}`, {
+          method: 'DELETE',
+          headers: { 'X-API-Key': currentForm.apiKey }
+        });
+        
+        if (!res.ok) throw new Error('删除失败');
+        
+        // 从本地数据中移除
+        forms = forms.filter(f => f.id !== currentForm.id);
+        localStorage.setItem('formfast_forms', JSON.stringify(forms));
+        
+        hideFormDetail();
+        loadForms();
+        alert('表单已删除');
+      } catch (err) {
+        alert('删除失败: ' + err.message);
+      }
+    }
+    
     function hideFormDetail() {
       document.getElementById('formDetailModal').classList.remove('active');
     }

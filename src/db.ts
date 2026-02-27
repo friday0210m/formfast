@@ -38,6 +38,17 @@ export const db = {
     return await client`
       SELECT * FROM submissions WHERE form_id = ${formId} ORDER BY created_at DESC;
     `;
+  },
+  async deleteForm(formId: string) {
+    // 先删除关联的提交数据
+    await client`DELETE FROM submissions WHERE form_id = ${formId}`;
+    // 再删除表单
+    return await client`DELETE FROM forms WHERE id = ${formId}`;
+  },
+  async updateForm(formId: string, data: { name?: string }) {
+    if (data.name) {
+      return await client`UPDATE forms SET name = ${data.name} WHERE id = ${formId}`;
+    }
   }
 };
 
