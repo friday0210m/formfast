@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { db } from './db.js';
 import { forms, submissions } from './schema.js';
 import { eq } from 'drizzle-orm';
+import { createCheckoutSession } from './stripe.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -124,6 +125,23 @@ app.get('/api/forms/:formId/submissions', async (req, res) => {
   } catch (error) {
     console.error('Get submissions error:', error);
     res.status(500).json({ error: 'Failed to get submissions' });
+  }
+});
+
+// Payment: Create checkout session
+app.post('/api/checkout', async (req, res) => {
+  try {
+    const { formId, apiKey } = req.body;
+    
+    if (!formId || !apiKey) {
+      return res.status(400).json({ error: 'formId and apiKey required' });
+    }
+    
+    const session = await createCheckoutSession(formId, apiKey);
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error('Checkout error:', error);
+    res.status(500).json({ error: 'Failed to create checkout session' });
   }
 });
 

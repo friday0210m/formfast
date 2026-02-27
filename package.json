@@ -21,6 +21,7 @@
   "license": "MIT",
   "type": "module",
   "dependencies": {
+    "@types/stripe": "^8.0.416",
     "bcryptjs": "^2.4.3",
     "better-sqlite3": "^12.6.2",
     "cors": "^2.8.5",
@@ -30,6 +31,7 @@
     "jsonwebtoken": "^9.0.2",
     "nanoid": "^5.0.9",
     "postgres": "^3.4.5",
+    "stripe": "^20.4.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
