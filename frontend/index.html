@@ -312,9 +312,16 @@
           <input type="text" id="formNameInput" placeholder="例如：联系表单" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
         </div>
         <div id="createFormError" class="text-red-500 text-sm hidden"></div>
-        <button onclick="createNewForm()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition">
-          创建
+        <button onclick="createNewForm()" id="createFormBtn" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition flex items-center justify-center gap-2">
+          <span id="createFormText">创建</span>
+          <span id="createFormLoading" class="hidden">
+            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </span>
         </button>
+        <p class="text-sm text-gray-500 text-center">首次创建可能需要 30-60 秒（数据库冷启动）</p>
       </div>
     </div>
   </div>
@@ -469,6 +476,9 @@
     async function createNewForm() {
       const name = document.getElementById('formNameInput').value.trim();
       const errorDiv = document.getElementById('createFormError');
+      const btn = document.getElementById('createFormBtn');
+      const btnText = document.getElementById('createFormText');
+      const btnLoading = document.getElementById('createFormLoading');
       
       if (!name) {
         errorDiv.textContent = '请输入表单名称';
@@ -476,15 +486,28 @@
         return;
       }
       
+      // 显示加载状态
+      btn.disabled = true;
+      btnText.textContent = '创建中...';
+      btnLoading.classList.remove('hidden');
+      errorDiv.classList.add('hidden');
+      
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 45000); // 45秒超时
+        
         const res = await fetch(`${API_BASE}/api/forms`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name })
+          body: JSON.stringify({ name }),
+          signal: controller.signal
         });
         
+        clearTimeout(timeoutId);
+        
         if (!res.ok) {
-          throw new Error('创建失败');
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.details || err.error || '创建失败');
         }
         
         const data = await res.json();
@@ -495,8 +518,16 @@
         loadForms();
         showFormDetail(data);
       } catch (err) {
-        errorDiv.textContent = '创建失败: ' + err.message;
+        if (err.name === 'AbortError') {
+          errorDiv.textContent = '请求超时，请稍后重试（数据库正在启动）';
+        } else {
+          errorDiv.textContent = '创建失败: ' + err.message;
+        }
         errorDiv.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = '创建';
+        btnLoading.classList.add('hidden');
       }
     }
 
