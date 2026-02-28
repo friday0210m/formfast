@@ -3,7 +3,7 @@ import cors from 'cors';
 import { nanoid } from 'nanoid';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { db, initDatabase } from './db.js';
+import { db, runMigrations } from './db.js';
 import { createCheckoutSession, handleWebhook } from './stripe.js';
 import { sendEmailCode, verifyEmailCode, handleGoogleAuth } from './auth.js';
 const __filename = fileURLToPath(import.meta.url);
@@ -324,8 +324,9 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 FormFast API running on port ${PORT}`);
     console.log(`📱 Open http://localhost:${PORT} to get started`);
-    initDatabase().catch(err => {
-        console.error('❌ Database initialization failed:', err);
+    // Run database migrations
+    runMigrations().catch(err => {
+        console.error('❌ Database migration failed:', err);
     });
 });
 //# sourceMappingURL=index.js.map

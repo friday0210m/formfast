@@ -1,10 +1,39 @@
 import postgres from 'postgres';
+import { fileURLToPath } from 'url';
+import path from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
     console.error('ERROR: DATABASE_URL environment variable is required');
     process.exit(1);
 }
 const client = postgres(connectionString, { ssl: { rejectUnauthorized: false } });
+// Run migrations on startup
+export async function runMigrations() {
+    try {
+        console.log('🔄 Running database migrations...');
+        // Check if user_email column exists
+        const columnCheck = await client `
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'forms' AND column_name = 'user_email'
+    `;
+        if (columnCheck.length === 0) {
+            console.log('📦 Migration: Adding user_email column to forms table...');
+            await client `ALTER TABLE forms ADD COLUMN IF NOT EXISTS user_email text`;
+            await client `CREATE INDEX IF NOT EXISTS forms_user_email_idx ON forms (user_email)`;
+            console.log('✅ Migration completed');
+        }
+        else {
+            console.log('✅ Database schema is up to date');
+        }
+    }
+    catch (error) {
+        console.error('❌ Migration failed:', error);
+        // Don't exit - let the app try to continue
+    }
+}
 export { client };
 // 数据库操作
 export const db = {

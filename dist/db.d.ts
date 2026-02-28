@@ -1,5 +1,6 @@
 import postgres from 'postgres';
 declare const client: postgres.Sql<{}>;
+export declare function runMigrations(): Promise<void>;
 export { client };
 export declare const db: {
     createUser(data: {
