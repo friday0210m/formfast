@@ -33,6 +33,7 @@
     "jsonwebtoken": "^9.0.2",
     "nanoid": "^5.0.9",
     "postgres": "^3.4.8",
+    "resend": "^6.9.3",
     "stripe": "^20.4.0",
     "zod": "^3.24.1"
   },

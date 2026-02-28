@@ -41,8 +41,12 @@ app.post('/api/auth/email/send-code', async (req, res) => {
       return res.status(400).json({ error: 'Invalid email' });
     }
     
-    await sendEmailCode(email);
-    res.json({ success: true, message: 'Verification code sent' });
+    const result = await sendEmailCode(email);
+    if (result.success) {
+      res.json({ success: true, message: 'Verification code sent' });
+    } else {
+      res.status(500).json({ error: 'Failed to send code', details: result.error });
+    }
   } catch (error: any) {
     console.error('Send code error:', error);
     res.status(500).json({ error: 'Failed to send code', details: error.message });
