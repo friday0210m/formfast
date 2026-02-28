@@ -332,31 +332,9 @@
           <div class="grid md:grid-cols-2 gap-8">
             <div>
               <h3 class="font-semibold text-lg mb-4">表单构建器</h3>
-              <div class="bg-gray-50 p-4 rounded-xl space-y-4">
-                <div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
-                  <div class="flex items-center gap-3">
-                    <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">text</span>
-                    <span class="font-medium">姓名</span>
-                    <span class="text-gray-400 text-sm">(name)</span>
-                    <span class="text-red-500 text-xs">*必填</span>
-                  </div>
-                </div>
-                <div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
-                  <div class="flex items-center gap-3">
-                    <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">email</span>
-                    <span class="font-medium">邮箱</span>
-                    <span class="text-gray-400 text-sm">(email)</span>
-                    <span class="text-red-500 text-xs">*必填</span>
-                  </div>
-                </div>
-                <div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
-                  <div class="flex items-center gap-3">
-                    <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">textarea</span>
-                    <span class="font-medium">留言</span>
-                    <span class="text-gray-400 text-sm">(message)</span>
-                  </div>
-                </div>
-                <div class="flex gap-2 mt-4">
+              <div id="demoBuilderContainer" class="bg-gray-50 p-4 rounded-xl space-y-4">
+                <!-- Fields will be rendered here by JavaScript -->
+                <div class="flex gap-2">
                   <select id="demoFieldType" class="w-32 px-3 py-2 border rounded-lg text-sm bg-white">
                     <option value="text">文本</option>
                     <option value="email">邮箱</option>
@@ -563,15 +541,14 @@
 
     // Render demo fields in creator tab
     function renderDemoFields() {
-      const container = document.querySelector('#demo-content-creator .space-y-4');
+      const container = document.getElementById('demoBuilderContainer');
       if (!container) return;
       
       // Clear existing fields (keep the input controls at the bottom)
       const existingFields = container.querySelectorAll('.demo-field-item');
       existingFields.forEach(el => el.remove());
       
-      // Add field items before the input controls
-      const inputControls = container.querySelector('.flex.gap-2.mt-4');
+      // Add field items at the top
       demoFields.forEach((field, index) => {
         const fieldEl = document.createElement('div');
         fieldEl.className = 'demo-field-item flex items-center justify-between p-3 bg-white rounded-lg shadow-sm';
@@ -584,7 +561,7 @@
           </div>
           <button onclick="removeDemoField(${index})" class="text-red-500 hover:text-red-700 text-sm">删除</button>
         `;
-        container.insertBefore(fieldEl, inputControls);
+        container.insertBefore(fieldEl, container.firstChild);
       });
     }
 

@@ -385,25 +385,46 @@
     // Load forms
     async function loadForms() {
       try {
+        // Show loading state
+        document.getElementById('formsList').innerHTML = `
+          <div class="p-8 text-center">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            <p class="text-gray-500 mt-2">加载中...（数据库冷启动可能需要 30-60 秒）</p>
+          </div>
+        `;
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60秒超时
+
         const res = await fetch(`${API_BASE}/api/forms`, {
-          headers: { 'X-User-Email': userEmail }
+          headers: { 'X-User-Email': userEmail },
+          signal: controller.signal
         });
+
+        clearTimeout(timeoutId);
 
         if (res.status === 401) {
           logout();
           return;
         }
 
-        if (!res.ok) throw new Error('加载失败');
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || `加载失败 (${res.status})`);
+        }
 
         const data = await res.json();
         forms = data.forms || [];
         renderFormsList();
       } catch (err) {
+        let errorMsg = err.message;
+        if (err.name === 'AbortError') {
+          errorMsg = '请求超时，数据库可能正在冷启动，请重试';
+        }
         document.getElementById('formsList').innerHTML = `
           <div class="p-8 text-center">
-            <p class="text-red-500">加载失败: ${err.message}</p>
-            <button onclick="loadForms()" class="mt-2 text-indigo-600 hover:text-indigo-700">重试</button>
+            <p class="text-red-500">加载失败: ${errorMsg}</p>
+            <button onclick="loadForms()" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">重试</button>
           </div>
         `;
       }
