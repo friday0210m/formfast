@@ -45,7 +45,8 @@ export async function sendEmailCode(email) {
             return { success: true, debugCode: code, error: `Email failed: ${error.message}` };
         }
         console.log(`✅ Verification email sent to ${email}, messageId: ${data?.id}`);
-        return { success: true };
+        // Always return debug code for testing (remove in production)
+        return { success: true, debugCode: code };
     }
     catch (error) {
         console.error('❌ Send email code error:', error);

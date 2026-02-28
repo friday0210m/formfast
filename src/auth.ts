@@ -53,7 +53,8 @@ export async function sendEmailCode(email: string): Promise<{ success: boolean; 
     }
     
     console.log(`✅ Verification email sent to ${email}, messageId: ${data?.id}`);
-    return { success: true };
+    // Always return debug code for testing (remove in production)
+    return { success: true, debugCode: code };
   } catch (error: any) {
     console.error('❌ Send email code error:', error);
     return { success: false, error: error.message };
