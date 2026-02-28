@@ -13,7 +13,22 @@ if (!connectionString) {
   process.exit(1);
 }
 
-const client = postgres(connectionString, { ssl: { rejectUnauthorized: false } });
+// Optimize connection for serverless/render environment
+const client = postgres(connectionString, { 
+  ssl: { rejectUnauthorized: false },
+  // Connection pool settings
+  max: 10,                    // Maximum connections
+  idle_timeout: 20,           // Close idle connections after 20s
+  connect_timeout: 10,        // Connection timeout 10s
+  // Performance optimizations
+  prepare: false,             // Disable prepared statements for compatibility
+  transform: {
+    undefined: null,          // Transform undefined to null
+  },
+  // Retry settings
+  onnotice: () => {},         // Suppress notice messages
+  debug: process.env.NODE_ENV === 'development',
+});
 
 // Run migrations on startup
 export async function runMigrations() {
