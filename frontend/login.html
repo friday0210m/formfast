@@ -183,10 +183,15 @@
     }
 
     // Configure Google OAuth
-    window.onload = function() {
-      const googleClientId = localStorage.getItem('formfast_google_client_id') || '';
-      if (googleClientId) {
-        document.getElementById('g_id_onload').setAttribute('data-client_id', googleClientId);
+    window.onload = async function() {
+      try {
+        const res = await fetch(`${API_BASE}/api/config`);
+        const config = await res.json();
+        if (config.googleClientId) {
+          document.getElementById('g_id_onload').setAttribute('data-client_id', config.googleClientId);
+        }
+      } catch (err) {
+        console.error('Failed to load config:', err);
       }
     };
 

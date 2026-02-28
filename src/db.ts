@@ -81,8 +81,9 @@ export const db = {
   },
   
   async updateForm(formId: string, data: { name?: string }) {
-    if (data.name) {
-      return await client`UPDATE forms SET name = ${data.name} WHERE id = ${formId}`;
+    if (data.name !== undefined) {
+      const result = await client`UPDATE forms SET name = ${data.name} WHERE id = ${formId} RETURNING *`;
+      return result[0];
     }
   },
   

@@ -23,6 +23,14 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Config endpoint for frontend
+app.get('/api/config', (req, res) => {
+  res.json({
+    googleClientId: process.env.GOOGLE_CLIENT_ID || '',
+    stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY || '',
+  });
+});
+
 // ========== AUTH ROUTES ==========
 
 // Send email verification code
