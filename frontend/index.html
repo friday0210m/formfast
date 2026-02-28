@@ -28,7 +28,7 @@
     .modal-content {
       background: white;
       border-radius: 16px;
-      max-width: 500px;
+      max-width: 900px;
       width: 90%;
       max-height: 90vh;
       overflow-y: auto;
@@ -61,6 +61,12 @@
     .copy-btn:hover {
       background: rgba(255,255,255,0.2);
     }
+    .example-form-preview {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      padding: 24px;
+      color: white;
+    }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -77,9 +83,6 @@
           <a href="#docs" class="text-gray-600 hover:text-gray-900">文档</a>
           <a href="/login.html" class="text-gray-600 hover:text-gray-900" id="loginLink">登录</a>
           <a href="/dashboard.html" class="text-gray-600 hover:text-gray-900 hidden" id="dashboardLink">控制台</a>
-          <button onclick="handleGetStarted()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition" id="getStartedBtn">
-            开始使用
-          </button>
         </div>
       </div>
     </div>
@@ -97,11 +100,11 @@
           支持 Webhook 通知、数据导出、垃圾邮件过滤。
         </p>
         <div class="flex justify-center gap-4">
-          <button onclick="showDashboard()" class="bg-indigo-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-indigo-700 transition shadow-lg">
+          <a href="/login.html" class="bg-indigo-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-indigo-700 transition shadow-lg inline-block">
             免费创建表单
-          </button>
+          </a>
           <button onclick="showDemo()" class="bg-white text-gray-700 border border-gray-300 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-gray-50 transition">
-            查看演示
+            使用示例
           </button>
         </div>
       </div>
@@ -148,84 +151,122 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
           </div>
-          <h3 class="text-xl font-semibold mb-2">垃圾邮件防护</h3>
-          <p class="text-gray-600">内置验证码和 AI 垃圾邮件检测，保护您的数据。</p>
+          <h3 class="text-xl font-semibold mb-2">防垃圾邮件</h3>
+          <p class="text-gray-600">内置验证码和频率限制，保护您的表单免受垃圾信息骚扰。</p>
         </div>
         <div class="p-8 rounded-2xl bg-gray-50 hover:shadow-lg transition">
           <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
             <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
             </svg>
           </div>
-          <h3 class="text-xl font-semibold mb-2">Webhook 集成</h3>
-          <p class="text-gray-600">自动推送数据到 Slack、Discord、Zapier 等平台。</p>
+          <h3 class="text-xl font-semibold mb-2">数据导出</h3>
+          <p class="text-gray-600">随时导出 JSON 或 CSV 格式数据，方便进一步分析处理。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it Works -->
+  <section id="docs" class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-3xl font-bold text-center mb-12">三步开始使用</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="text-center">
+          <div class="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold">1</div>
+          <h3 class="text-xl font-semibold mb-2">创建表单</h3>
+          <p class="text-gray-600">登录后点击"创建表单"，输入表单名称即可生成唯一的 API 端点。</p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold">2</div>
+          <h3 class="text-xl font-semibold mb-2">复制代码</h3>
+          <p class="text-gray-600">使用表单构建器设计字段，一键生成 HTML 代码，粘贴到您的网站。</p>
+        </div>
+        <div class="text-center">
+          <div class="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold">3</div>
+          <h3 class="text-xl font-semibold mb-2">查看数据</h3>
+          <p class="text-gray-600">用户提交后，实时在控制台查看数据，支持导出和 Webhook 通知。</p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- Pricing -->
-  <section id="pricing" class="py-20">
+  <section id="pricing" class="py-20 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h2 class="text-3xl font-bold text-center mb-12">简单透明的定价</h2>
+      <h2 class="text-3xl font-bold text-center mb-12">简单定价</h2>
       <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
-          <h3 class="text-xl font-semibold mb-2">免费版</h3>
-          <p class="text-4xl font-bold mb-6">¥0<span class="text-lg text-gray-500">/月</span></p>
+        <!-- Free Plan -->
+        <div class="border border-gray-200 rounded-2xl p-8 hover:shadow-lg transition">
+          <h3 class="text-2xl font-bold mb-2">免费版</h3>
+          <p class="text-gray-600 mb-6">适合个人项目和小型网站</p>
+          <div class="text-4xl font-bold mb-6">¥0<span class="text-lg text-gray-500">/月</span></div>
           <ul class="space-y-3 mb-8">
-            <li class="flex items-center text-gray-600">
-              <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <li class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
               </svg>
-              每月 100 条提交
+              最多 3 个表单
             </li>
-            <li class="flex items-center text-gray-600">
-              <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <li class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
               </svg>
-              基础数据导出
+              100 条提交/月
             </li>
-            <li class="flex items-center text-gray-600">
-              <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <li class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              数据导出
+            </li>
+            <li class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
               </svg>
               邮件通知
             </li>
           </ul>
-          <button onclick="showDashboard()" class="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition">
+          <a href="/login.html" class="block w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition text-center">
             免费开始
-          </button>
+          </a>
         </div>
-        <div class="bg-indigo-600 p-8 rounded-2xl shadow-lg text-white">
-          <h3 class="text-xl font-semibold mb-2">专业版</h3>
-          <p class="text-4xl font-bold mb-6">¥49<span class="text-lg text-indigo-200">/月</span></p>
+
+        <!-- Pro Plan -->
+        <div class="border-2 border-indigo-600 rounded-2xl p-8 hover:shadow-lg transition relative">
+          <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-1 rounded-full text-sm font-medium">
+            推荐
+          </div>
+          <h3 class="text-2xl font-bold mb-2">专业版</h3>
+          <p class="text-gray-600 mb-6">适合专业开发者和企业</p>
+          <div class="text-4xl font-bold mb-6">¥49<span class="text-lg text-gray-500">/月</span></div>
           <ul class="space-y-3 mb-8">
-            <li class="flex items-center">
-              <svg class="w-5 h-5 text-indigo-200 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <li class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              最多 100 个表单
+            </li>
+            <li class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
               </svg>
               无限提交
             </li>
-            <li class="flex items-center">
-              <svg class="w-5 h-5 text-indigo-200 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <li class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
               </svg>
-              Webhook 集成
+              Webhook 通知
             </li>
-            <li class="flex items-center">
-              <svg class="w-5 h-5 text-indigo-200 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-              </svg>
-              数据分析仪表板
-            </li>
-            <li class="flex items-center">
-              <svg class="w-5 h-5 text-indigo-200 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <li class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
               </svg>
               优先支持
             </li>
           </ul>
-          <button onclick="upgrade()" class="w-full bg-white text-indigo-600 py-3 rounded-xl font-semibold hover:bg-indigo-50 transition">
+          <button onclick="upgrade()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition">
             升级到专业版
           </button>
         </div>
@@ -233,246 +274,257 @@
     </div>
   </section>
 
-  <!-- Docs Section -->
-  <section id="docs" class="py-20 bg-white">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h2 class="text-3xl font-bold text-center mb-12">快速开始</h2>
-      
-      <div class="space-y-8">
-        <div>
-          <h3 class="text-xl font-semibold mb-4">1. 创建表单</h3>
-          <p class="text-gray-600 mb-4">点击"开始使用"按钮，输入表单名称，即可获得专属的表单端点。</p>
-        </div>
-        
-        <div>
-          <h3 class="text-xl font-semibold mb-4">2. 在 HTML 中使用</h3>
-          <p class="text-gray-600 mb-4">将生成的端点地址填入 form 标签的 action 属性：</p>
-          <div class="relative">
-            <div class="code-block text-green-400 text-sm">
-              <pre><code>&lt;form action="https://formfast.onrender.com/f/YOUR_FORM_ID" method="POST"&gt;
-  &lt;input type="email" name="email" required&gt;
-  &lt;textarea name="message"&gt;&lt;/textarea&gt;
-  &lt;button type="submit"&gt;提交&lt;/button&gt;
-&lt;/form&gt;</code></pre>
-            </div>
-          </div>
-        </div>
-        
-        <div>
-          <h3 class="text-xl font-semibold mb-4">3. 查看数据</h3>
-          <p class="text-gray-600 mb-4">在"我的表单"页面，点击"查看数据"即可看到所有提交记录。</p>
-        </div>
-        
-        <div>
-          <h3 class="text-xl font-semibold mb-4">API 文档</h3>
-          <div class="bg-gray-50 rounded-lg p-6">
-            <h4 class="font-semibold mb-2">创建表单</h4>
-            <code class="text-sm bg-gray-200 px-2 py-1 rounded">POST /api/forms</code>
-            <pre class="mt-2 text-sm text-gray-600">{
-  "name": "联系表单"
-}</pre>
-            
-            <h4 class="font-semibold mb-2 mt-4">提交表单</h4>
-            <code class="text-sm bg-gray-200 px-2 py-1 rounded">POST /f/{formId}</code>
-            <p class="text-sm text-gray-600 mt-1">任何表单数据都会自动保存</p>
-            
-            <h4 class="font-semibold mb-2 mt-4">查看提交</h4>
-            <code class="text-sm bg-gray-200 px-2 py-1 rounded">GET /api/forms/{formId}/submissions</code>
-            <p class="text-sm text-gray-600 mt-1">Header: X-API-Key: your-api-key</p>
-          </div>
-        </div>
-      </div>
+  <!-- CTA -->
+  <section class="py-20 bg-indigo-600">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl font-bold text-white mb-4">准备好简化您的表单了吗？</h2>
+      <p class="text-indigo-100 mb-8 text-lg">加入数千名开发者的行列，使用 FormFast 处理表单提交</p>
+      <a href="/login.html" class="inline-block bg-white text-indigo-600 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-gray-100 transition">
+        立即免费开始
+      </a>
     </div>
   </section>
 
-  <!-- Dashboard Modal -->
-  <div id="dashboardModal" class="modal">
-    <div class="modal-content p-6">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">我的表单</h2>
-        <button onclick="hideDashboard()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-400 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="mb-4 md:mb-0">
+          <span class="text-2xl font-bold text-white">FormFast</span>
+          <p class="mt-2">最简单的表单后端服务</p>
+        </div>
+        <div class="flex gap-6">
+          <a href="#" class="hover:text-white transition">文档</a>
+          <a href="#" class="hover:text-white transition">GitHub</a>
+          <a href="#" class="hover:text-white transition">联系我们</a>
+        </div>
       </div>
-      <div id="formList" class="space-y-4 max-h-96 overflow-y-auto">
-        <p class="text-gray-500 text-center py-8">还没有表单，点击下方按钮创建</p>
+      <div class="mt-8 pt-8 border-t border-gray-800 text-center text-sm">
+        © 2024 FormFast. All rights reserved.
       </div>
-      <button onclick="showCreateFormModal()" class="mt-6 w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition">
-        + 创建新表单
-      </button>
     </div>
-  </div>
+  </footer>
 
-  <!-- Create Form Modal -->
-  <div id="createFormModal" class="modal">
-    <div class="modal-content p-6">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">创建新表单</h2>
-        <button onclick="hideCreateFormModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-      </div>
-      <div class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">表单名称</label>
-          <input type="text" id="formNameInput" placeholder="例如：联系表单" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-        </div>
-        <div id="createFormError" class="text-red-500 text-sm hidden"></div>
-        <button onclick="createNewForm()" id="createFormBtn" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition flex items-center justify-center gap-2">
-          <span id="createFormText">创建</span>
-          <span id="createFormLoading" class="hidden">
-            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-          </span>
-        </button>
-        <p class="text-sm text-gray-500 text-center">首次创建可能需要 30-60 秒（数据库冷启动）</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Form Detail Modal -->
-  <div id="formDetailModal" class="modal">
-    <div class="modal-content p-6 max-w-2xl">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold" id="detailFormName">表单详情</h2>
-        <button onclick="hideFormDetail()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-      </div>
-      
-      <!-- Tabs -->
-      <div class="flex border-b border-gray-200 mb-4">
-        <button onclick="showTab('builder')" id="tab-builder" class="px-4 py-2 font-medium text-indigo-600 border-b-2 border-indigo-600">表单构建器</button>
-        <button onclick="showTab('code')" id="tab-code" class="px-4 py-2 font-medium text-gray-500 hover:text-gray-700">HTML代码</button>
-        <button onclick="showTab('endpoint')" id="tab-endpoint" class="px-4 py-2 font-medium text-gray-500 hover:text-gray-700">端点信息</button>
-      </div>
-      
-      <!-- Builder Tab -->
-      <div id="content-builder" class="space-y-4">
-        <p class="text-sm text-gray-600">选择需要的字段，自动生成表单代码：</p>
-        <div id="fieldList" class="space-y-2">
-          <!-- Fields will be added here -->
-        </div>
-        <div class="space-y-3 mt-4">
-          <div class="flex gap-2">
-            <select id="fieldType" class="w-32 px-3 py-2 border rounded-lg text-sm">
-              <option value="text">文本</option>
-              <option value="email">邮箱</option>
-              <option value="tel">电话</option>
-              <option value="number">数字</option>
-              <option value="textarea">多行</option>
-              <option value="select">下拉</option>
-            </select>
-            <input type="text" id="fieldName" placeholder="字段名称 (如: username)" class="flex-1 px-3 py-2 border rounded-lg text-sm">
-          </div>
-          <div class="flex gap-2">
-            <input type="text" id="fieldLabel" placeholder="显示标签 (如: 用户名)" class="flex-1 px-3 py-2 border rounded-lg text-sm">
-            <button onclick="addField()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium whitespace-nowrap">添加字段</button>
-          </div>
-        </div>
-        <div class="flex items-center gap-2 mt-2">
-          <input type="checkbox" id="fieldRequired" class="w-4 h-4">
-          <label for="fieldRequired" class="text-sm text-gray-600">必填字段</label>
-        </div>
-        <div class="bg-gray-50 p-4 rounded-lg mt-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1">预览代码</label>
-          <pre id="builderCode" class="bg-white p-3 rounded border text-sm overflow-x-auto"></pre>
-          <button onclick="copyBuilderCode()" class="mt-2 bg-gray-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700">复制代码</button>
-        </div>
-      </div>
-      
-      <!-- Code Tab -->
-      <div id="content-code" class="space-y-4 hidden">
-        <div class="bg-gray-50 p-4 rounded-lg">
-          <label class="block text-sm font-medium text-gray-700 mb-1">基础 HTML 代码（可自定义修改）</label>
-          <pre id="detailHtml" class="bg-white p-3 rounded border text-sm overflow-x-auto"></pre>
-          <button onclick="copyHtml()" class="mt-2 bg-gray-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700">复制代码</button>
-        </div>
-      </div>
-      
-      <!-- Endpoint Tab -->
-      <div id="content-endpoint" class="space-y-4 hidden">
-        <div class="bg-gray-50 p-4 rounded-lg">
-          <label class="block text-sm font-medium text-gray-700 mb-1">表单端点</label>
-          <div class="flex gap-2">
-            <code id="detailEndpoint" class="flex-1 bg-white px-3 py-2 rounded border text-sm"></code>
-            <button onclick="copyEndpoint()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700">复制</button>
-          </div>
-        </div>
-        <div class="bg-gray-50 p-4 rounded-lg">
-          <label class="block text-sm font-medium text-gray-700 mb-1">API Key（查看数据时需要）</label>
-          <div class="flex gap-2">
-            <code id="detailApiKey" class="flex-1 bg-white px-3 py-2 rounded border text-sm"></code>
-            <button onclick="copyApiKey()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700">复制</button>
-          </div>
-        </div>
-      </div>
-      
-      <div class="flex gap-3 mt-6">
-        <button onclick="viewSubmissions()" class="flex-1 bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition">
-          查看提交数据
-        </button>
-        <button onclick="showRenameForm()" class="px-4 bg-gray-600 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition">
-          重命名
-        </button>
-        <button onclick="deleteForm()" class="px-4 bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-700 transition">
-          删除
-        </button>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Rename Modal -->
-  <div id="renameModal" class="modal">
-    <div class="modal-content p-6 max-w-md">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">重命名表单</h2>
-        <button onclick="hideRenameForm()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-      </div>
-      <div class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">新名称</label>
-          <input type="text" id="renameInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-        </div>
-        <div id="renameError" class="text-red-500 text-sm hidden"></div>
-        <button onclick="confirmRename()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition">
-          确认修改
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Submissions Modal -->
-  <div id="submissionsModal" class="modal">
-    <div class="modal-content p-6 max-w-3xl">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">提交数据</h2>
-        <button onclick="hideSubmissions()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-      </div>
-      <div id="submissionsList" class="space-y-3 max-h-96 overflow-y-auto">
-        <p class="text-gray-500 text-center py-8">暂无提交数据</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Demo Modal -->
+  <!-- Demo Modal - Redesigned with split view -->
   <div id="demoModal" class="modal">
-    <div class="modal-content p-6 max-w-2xl">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">在线演示</h2>
+    <div class="modal-content">
+      <div class="flex justify-between items-center p-6 border-b border-gray-200">
+        <h2 class="text-2xl font-bold">使用示例</h2>
         <button onclick="hideDemo()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
       </div>
-      <div class="grid md:grid-cols-2 gap-8">
-        <div>
-          <h3 class="font-semibold mb-4">示例表单</h3>
-          <form id="demoForm" class="space-y-4">
-            <input type="text" name="name" placeholder="您的姓名" class="w-full px-4 py-2 border rounded-lg" required>
-            <input type="email" name="email" placeholder="您的邮箱" class="w-full px-4 py-2 border rounded-lg" required>
-            <textarea name="message" placeholder="留言内容" class="w-full px-4 py-2 border rounded-lg" rows="3" required></textarea>
-            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">提交</button>
-          </form>
+      
+      <div class="p-6">
+        <!-- Tabs -->
+        <div class="flex border-b border-gray-200 mb-6">
+          <button onclick="showDemoTab('creator')" id="demo-tab-creator" class="px-6 py-3 font-medium text-indigo-600 border-b-2 border-indigo-600">
+            1. 创建表单
+          </button>
+          <button onclick="showDemoTab('preview')" id="demo-tab-preview" class="px-6 py-3 font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent">
+            2. 填写表单
+          </button>
+          <button onclick="showDemoTab('results')" id="demo-tab-results" class="px-6 py-3 font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent">
+            3. 查看结果
+          </button>
         </div>
-        <div>
-          <h3 class="font-semibold mb-4">提交结果</h3>
-          <div id="demoResult" class="bg-gray-50 p-4 rounded-lg min-h-[200px]">
-            <p class="text-gray-400 text-sm">提交后结果会显示在这里</p>
+
+        <!-- Creator Tab -->
+        <div id="demo-content-creator" class="space-y-6">
+          <div class="grid md:grid-cols-2 gap-8">
+            <div>
+              <h3 class="font-semibold text-lg mb-4">表单构建器</h3>
+              <div class="bg-gray-50 p-4 rounded-xl space-y-4">
+                <div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+                  <div class="flex items-center gap-3">
+                    <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">text</span>
+                    <span class="font-medium">姓名</span>
+                    <span class="text-gray-400 text-sm">(name)</span>
+                    <span class="text-red-500 text-xs">*必填</span>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+                  <div class="flex items-center gap-3">
+                    <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">email</span>
+                    <span class="font-medium">邮箱</span>
+                    <span class="text-gray-400 text-sm">(email)</span>
+                    <span class="text-red-500 text-xs">*必填</span>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+                  <div class="flex items-center gap-3">
+                    <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">textarea</span>
+                    <span class="font-medium">留言</span>
+                    <span class="text-gray-400 text-sm">(message)</span>
+                  </div>
+                </div>
+                <div class="flex gap-2 mt-4">
+                  <select class="w-32 px-3 py-2 border rounded-lg text-sm bg-white">
+                    <option>文本</option>
+                    <option>邮箱</option>
+                    <option>电话</option>
+                  </select>
+                  <input type="text" placeholder="字段名称" class="flex-1 px-3 py-2 border rounded-lg text-sm">
+                  <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm">添加</button>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3 class="font-semibold text-lg mb-4">生成的代码</h3>
+              <div class="relative">
+                <div class="code-block text-green-400 text-sm">
+                  <pre><code>&lt;form action="https://formfast.onrender.com/f/abc123" method="POST"&gt;
+  &lt;input type="text" name="name" 
+         placeholder="姓名" required&gt;
+  
+  &lt;input type="email" name="email" 
+         placeholder="邮箱" required&gt;
+  
+  &lt;textarea name="message" 
+            placeholder="留言"&gt;&lt;/textarea&gt;
+  
+  &lt;button type="submit"&gt;提交&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+                </div>
+                <button class="copy-btn">复制</button>
+              </div>
+              <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                <p class="text-sm text-blue-800">
+                  <strong>提示：</strong> 登录后可以使用表单构建器可视化设计字段，一键生成代码。
+                </p>
+              </div>
+            </div>
           </div>
+        </div>
+
+        <!-- Preview Tab -->
+        <div id="demo-content-preview" class="hidden space-y-6">
+          <div class="grid md:grid-cols-2 gap-8">
+            <div>
+              <h3 class="font-semibold text-lg mb-4">用户看到的表单</h3>
+              <div class="example-form-preview">
+                <h4 class="text-xl font-bold mb-4">联系我们</h4>
+                <form id="demoContactForm" class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium mb-1">姓名 *</label>
+                    <input type="text" name="name" required 
+                           class="w-full px-4 py-2 rounded-lg text-gray-900" 
+                           placeholder="请输入您的姓名">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-1">邮箱 *</label>
+                    <input type="email" name="email" required 
+                           class="w-full px-4 py-2 rounded-lg text-gray-900" 
+                           placeholder="your@email.com">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-1">留言</label>
+                    <textarea name="message" rows="3" 
+                              class="w-full px-4 py-2 rounded-lg text-gray-900" 
+                              placeholder="请输入您的留言..."></textarea>
+                  </div>
+                  <button type="submit" 
+                          class="w-full bg-white text-indigo-600 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+                    提交表单
+                  </button>
+                </form>
+              </div>
+            </div>
+            <div>
+              <h3 class="font-semibold text-lg mb-4">提交结果</h3>
+              <div id="demoSubmitResult" class="bg-gray-50 p-4 rounded-xl min-h-[300px]">
+                <p class="text-gray-400 text-center py-8">填写左侧表单并提交，结果会显示在这里</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results Tab -->
+        <div id="demo-content-results" class="hidden space-y-6">
+          <div class="grid md:grid-cols-2 gap-8">
+            <div>
+              <h3 class="font-semibold text-lg mb-4">控制台数据展示</h3>
+              <div class="bg-gray-50 p-4 rounded-xl space-y-3">
+                <div class="border border-gray-200 rounded-lg p-4 bg-white">
+                  <div class="flex justify-between items-start mb-2">
+                    <span class="text-sm text-gray-500">2024-01-15 14:30:25</span>
+                    <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">新提交</span>
+                  </div>
+                  <pre class="bg-gray-50 p-3 rounded text-sm overflow-x-auto">{
+  "name": "张三",
+  "email": "zhangsan@example.com",
+  "message": "我想了解更多信息"
+}</pre>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-4 bg-white">
+                  <div class="flex justify-between items-start mb-2">
+                    <span class="text-sm text-gray-500">2024-01-15 14:28:10</span>
+                  </div>
+                  <pre class="bg-gray-50 p-3 rounded text-sm overflow-x-auto">{
+  "name": "李四",
+  "email": "lisi@example.com",
+  "message": "这个产品很棒！"
+}</pre>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3 class="font-semibold text-lg mb-4">功能特性</h3>
+              <div class="space-y-4">
+                <div class="flex items-start gap-3">
+                  <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="font-medium">实时数据</h4>
+                    <p class="text-sm text-gray-600">用户提交后立即在控制台看到数据</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="font-medium">数据导出</h4>
+                    <p class="text-sm text-gray-600">支持导出 JSON 和 CSV 格式</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="font-medium">Webhook 通知</h4>
+                    <p class="text-sm text-gray-600">专业版支持提交时自动触发 Webhook</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 class="font-medium">垃圾防护</h4>
+                    <p class="text-sm text-gray-600">内置频率限制和验证码支持</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="p-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+        <div class="flex justify-between items-center">
+          <p class="text-sm text-gray-600">体验完整功能？</p>
+          <a href="/login.html" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition">
+            免费注册 →
+          </a>
         </div>
       </div>
     </div>
@@ -480,250 +532,34 @@
 
   <script>
     const API_BASE = window.location.origin;
-    let currentForm = null;
-    let forms = JSON.parse(localStorage.getItem('formfast_forms') || '[]');
-    let formFields = []; // 存储表单构建器的字段
+
+    // Check login status
+    const userEmail = localStorage.getItem('formfast_user_email');
+    if (userEmail) {
+      document.getElementById('loginLink').classList.add('hidden');
+      document.getElementById('dashboardLink').classList.remove('hidden');
+    }
 
     // Modal functions
-    function showDashboard() {
-      document.getElementById('dashboardModal').classList.add('active');
-      loadForms();
-    }
-    function hideDashboard() {
-      document.getElementById('dashboardModal').classList.remove('active');
-    }
-    function showCreateFormModal() {
-      document.getElementById('createFormModal').classList.add('active');
-      document.getElementById('formNameInput').focus();
-    }
-    function hideCreateFormModal() {
-      document.getElementById('createFormModal').classList.remove('active');
-      document.getElementById('createFormError').classList.add('hidden');
-      document.getElementById('formNameInput').value = '';
-    }
-    function showFormDetail(form) {
-      currentForm = form;
-      formFields = []; // 重置字段
-      document.getElementById('detailFormName').textContent = form.name;
-      const endpoint = `${API_BASE}/f/${form.id}`;
-      document.getElementById('detailEndpoint').textContent = endpoint;
-      document.getElementById('detailApiKey').textContent = form.apiKey;
-      
-      // 默认添加常用字段
-      formFields = [
-        { type: 'text', name: 'name', label: '姓名', required: true },
-        { type: 'email', name: 'email', label: '邮箱', required: true },
-        { type: 'textarea', name: 'message', label: '留言', required: false }
-      ];
-      renderFields();
-      updateBuilderCode();
-      
-      // 基础代码
-      document.getElementById('detailHtml').textContent = `<!-- 基础示例 -->
-<form action="${endpoint}" method="POST">
-  <input type="email" name="email" placeholder="your@email.com" required>
-  <textarea name="message" placeholder="Your message..."></textarea>
-  <button type="submit">Send</button>
-</form>`;
-      
-      document.getElementById('formDetailModal').classList.add('active');
-      showTab('builder'); // 默认显示构建器
-    }
-    
-    // Tab 切换
-    function showTab(tabName) {
-      // 隐藏所有内容
-      ['builder', 'code', 'endpoint'].forEach(t => {
-        document.getElementById(`content-${t}`).classList.add('hidden');
-        document.getElementById(`tab-${t}`).classList.remove('text-indigo-600', 'border-b-2', 'border-indigo-600');
-        document.getElementById(`tab-${t}`).classList.add('text-gray-500');
-      });
-      
-      // 显示选中内容
-      document.getElementById(`content-${tabName}`).classList.remove('hidden');
-      document.getElementById(`tab-${tabName}`).classList.add('text-indigo-600', 'border-b-2', 'border-indigo-600');
-      document.getElementById(`tab-${tabName}`).classList.remove('text-gray-500');
-    }
-    
-    // 添加字段
-    function addField() {
-      const type = document.getElementById('fieldType').value;
-      const name = document.getElementById('fieldName').value.trim();
-      const label = document.getElementById('fieldLabel').value.trim();
-      const required = document.getElementById('fieldRequired').checked;
-      
-      if (!name || !label) {
-        alert('请输入字段名称和标签');
-        return;
-      }
-      
-      formFields.push({ type, name, label, required });
-      
-      // 清空输入
-      document.getElementById('fieldName').value = '';
-      document.getElementById('fieldLabel').value = '';
-      document.getElementById('fieldRequired').checked = false;
-      
-      renderFields();
-      updateBuilderCode();
-    }
-    
-    // 删除字段
-    function removeField(index) {
-      formFields.splice(index, 1);
-      renderFields();
-      updateBuilderCode();
-    }
-    
-    // 渲染字段列表
-    function renderFields() {
-      const container = document.getElementById('fieldList');
-      if (formFields.length === 0) {
-        container.innerHTML = '<p class="text-gray-400 text-sm">暂无字段，请添加</p>';
-        return;
-      }
-      
-      container.innerHTML = formFields.map((field, index) => `
-        <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-          <div class="flex items-center gap-3">
-            <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">${field.type}</span>
-            <span class="font-medium">${field.label}</span>
-            <span class="text-gray-400 text-sm">(${field.name})</span>
-            ${field.required ? '<span class="text-red-500 text-xs">*必填</span>' : ''}
-          </div>
-          <button onclick="removeField(${index})" class="text-red-500 hover:text-red-700 text-sm">删除</button>
-        </div>
-      `).join('');
-    }
-    
-    // 更新构建器代码
-    function updateBuilderCode() {
-      const endpoint = `${API_BASE}/f/${currentForm.id}`;
-      let html = `<form action="${endpoint}" method="POST">\n`;
-      
-      formFields.forEach(field => {
-        const required = field.required ? ' required' : '';
-        switch(field.type) {
-          case 'textarea':
-            html += `  <textarea name="${field.name}" placeholder="${field.label}"${required}></textarea>\n`;
-            break;
-          case 'select':
-            html += `  <select name="${field.name}"${required}>\n    <option value="">请选择${field.label}</option>\n  </select>\n`;
-            break;
-          default:
-            html += `  <input type="${field.type}" name="${field.name}" placeholder="${field.label}"${required}>\n`;
-        }
-      });
-      
-      html += `  <button type="submit">提交</button>\n</form>`;
-      document.getElementById('builderCode').textContent = html;
-    }
-    
-    // 复制构建器代码
-    function copyBuilderCode() {
-      const code = document.getElementById('builderCode').textContent;
-      navigator.clipboard.writeText(code);
-      alert('已复制到剪贴板');
-    }
-    
-    // 复制 API Key
-    function copyApiKey() {
-      const key = document.getElementById('detailApiKey').textContent;
-      navigator.clipboard.writeText(key);
-      alert('已复制');
-    }
-    
-    // 显示重命名表单
-    function showRenameForm() {
-      if (!currentForm) return;
-      document.getElementById('renameInput').value = currentForm.name;
-      document.getElementById('renameError').classList.add('hidden');
-      document.getElementById('renameModal').classList.add('active');
-    }
-    
-    // 隐藏重命名表单
-    function hideRenameForm() {
-      document.getElementById('renameModal').classList.remove('active');
-    }
-    
-    // 确认重命名
-    async function confirmRename() {
-      if (!currentForm) return;
-      const newName = document.getElementById('renameInput').value.trim();
-      const errorDiv = document.getElementById('renameError');
-      
-      if (!newName) {
-        errorDiv.textContent = '请输入新名称';
-        errorDiv.classList.remove('hidden');
-        return;
-      }
-      
-      try {
-        const res = await fetch(`${API_BASE}/api/forms/${currentForm.id}`, {
-          method: 'PATCH',
-          headers: { 
-            'Content-Type': 'application/json',
-            'X-API-Key': currentForm.apiKey 
-          },
-          body: JSON.stringify({ name: newName })
-        });
-        
-        if (!res.ok) throw new Error('重命名失败');
-        
-        // 更新本地数据
-        currentForm.name = newName;
-        const index = forms.findIndex(f => f.id === currentForm.id);
-        if (index >= 0) forms[index].name = newName;
-        localStorage.setItem('formfast_forms', JSON.stringify(forms));
-        
-        document.getElementById('detailFormName').textContent = newName;
-        hideRenameForm();
-        alert('重命名成功');
-      } catch (err) {
-        errorDiv.textContent = '重命名失败: ' + err.message;
-        errorDiv.classList.remove('hidden');
-      }
-    }
-    
-    // 删除表单
-    async function deleteForm() {
-      if (!currentForm) return;
-      if (!confirm(`确定要删除表单 "${currentForm.name}" 吗？此操作不可恢复！`)) return;
-      
-      try {
-        const res = await fetch(`${API_BASE}/api/forms/${currentForm.id}`, {
-          method: 'DELETE',
-          headers: { 'X-API-Key': currentForm.apiKey }
-        });
-        
-        if (!res.ok) throw new Error('删除失败');
-        
-        // 从本地数据中移除
-        forms = forms.filter(f => f.id !== currentForm.id);
-        localStorage.setItem('formfast_forms', JSON.stringify(forms));
-        
-        hideFormDetail();
-        loadForms();
-        alert('表单已删除');
-      } catch (err) {
-        alert('删除失败: ' + err.message);
-      }
-    }
-    
-    function hideFormDetail() {
-      document.getElementById('formDetailModal').classList.remove('active');
-    }
-    function showSubmissions() {
-      document.getElementById('submissionsModal').classList.add('active');
-    }
-    function hideSubmissions() {
-      document.getElementById('submissionsModal').classList.remove('active');
-    }
     function showDemo() {
       document.getElementById('demoModal').classList.add('active');
+      showDemoTab('creator');
     }
     function hideDemo() {
       document.getElementById('demoModal').classList.remove('active');
+    }
+
+    // Demo tab switching
+    function showDemoTab(tabName) {
+      ['creator', 'preview', 'results'].forEach(t => {
+        document.getElementById(`demo-content-${t}`).classList.add('hidden');
+        document.getElementById(`demo-tab-${t}`).classList.remove('text-indigo-600', 'border-indigo-600');
+        document.getElementById(`demo-tab-${t}`).classList.add('text-gray-500', 'border-transparent');
+      });
+
+      document.getElementById(`demo-content-${tabName}`).classList.remove('hidden');
+      document.getElementById(`demo-tab-${tabName}`).classList.add('text-indigo-600', 'border-indigo-600');
+      document.getElementById(`demo-tab-${tabName}`).classList.remove('text-gray-500', 'border-transparent');
     }
 
     // Close modals on outside click
@@ -735,151 +571,68 @@
       });
     });
 
-    // Load forms
-    function loadForms() {
-      const formList = document.getElementById('formList');
-      if (forms.length === 0) {
-        formList.innerHTML = '<p class="text-gray-500 text-center py-8">还没有表单，点击下方按钮创建</p>';
-        return;
-      }
-      formList.innerHTML = forms.map(form => `
-        <div class="border border-gray-200 rounded-xl p-4 hover:border-indigo-300 transition cursor-pointer" onclick='showFormDetail(${JSON.stringify(form)})'>
-          <div class="flex justify-between items-start">
-            <div>
-              <h3 class="font-semibold">${form.name}</h3>
-              <p class="text-sm text-gray-500 mt-1">端点: /f/${form.id}</p>
-            </div>
-            <span class="text-indigo-600 text-sm">查看详情 →</span>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // Create form
-    async function createNewForm() {
-      const name = document.getElementById('formNameInput').value.trim();
-      const errorDiv = document.getElementById('createFormError');
-      const btn = document.getElementById('createFormBtn');
-      const btnText = document.getElementById('createFormText');
-      const btnLoading = document.getElementById('createFormLoading');
-      
-      if (!name) {
-        errorDiv.textContent = '请输入表单名称';
-        errorDiv.classList.remove('hidden');
-        return;
-      }
-      
-      // 显示加载状态
-      btn.disabled = true;
-      btnText.textContent = '创建中...';
-      btnLoading.classList.remove('hidden');
-      errorDiv.classList.add('hidden');
-      
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 45000); // 45秒超时
-        
-        const res = await fetch(`${API_BASE}/api/forms`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name }),
-          signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId);
-        
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.details || err.error || '创建失败');
-        }
-        
-        const data = await res.json();
-        forms.push(data);
-        localStorage.setItem('formfast_forms', JSON.stringify(forms));
-        
-        hideCreateFormModal();
-        loadForms();
-        showFormDetail(data);
-      } catch (err) {
-        if (err.name === 'AbortError') {
-          errorDiv.textContent = '请求超时，请稍后重试（数据库正在启动）';
-        } else {
-          errorDiv.textContent = '创建失败: ' + err.message;
-        }
-        errorDiv.classList.remove('hidden');
-      } finally {
-        btn.disabled = false;
-        btnText.textContent = '创建';
-        btnLoading.classList.add('hidden');
-      }
-    }
-
-    // View submissions
-    async function viewSubmissions() {
-      if (!currentForm) return;
-      
-      try {
-        const res = await fetch(`${API_BASE}/api/forms/${currentForm.id}/submissions`, {
-          headers: { 'X-API-Key': currentForm.apiKey }
-        });
-        
-        if (!res.ok) throw new Error('获取失败');
-        
-        const data = await res.json();
-        const list = document.getElementById('submissionsList');
-        
-        if (data.submissions.length === 0) {
-          list.innerHTML = '<p class="text-gray-500 text-center py-8">暂无提交数据</p>';
-        } else {
-          list.innerHTML = data.submissions.map(s => `
-            <div class="border border-gray-200 rounded-lg p-4">
-              <div class="text-sm text-gray-500 mb-2">${new Date(s.createdAt).toLocaleString()}</div>
-              <pre class="bg-gray-50 p-2 rounded text-sm overflow-x-auto">${JSON.stringify(s.data, null, 2)}</pre>
-            </div>
-          `).join('');
-        }
-        
-        hideFormDetail();
-        showSubmissions();
-      } catch (err) {
-        alert('获取失败: ' + err.message);
-      }
-    }
-
-    // Copy functions
+    // Copy code
     function copyCode() {
       const code = document.querySelector('.code-block code').textContent;
       navigator.clipboard.writeText(code);
       alert('已复制到剪贴板');
     }
-    function copyEndpoint() {
-      const endpoint = document.getElementById('detailEndpoint').textContent;
-      navigator.clipboard.writeText(endpoint);
-      alert('已复制');
-    }
-    function copyHtml() {
-      const html = document.getElementById('detailHtml').textContent;
-      navigator.clipboard.writeText(html);
-      alert('已复制');
-    }
 
-    // Demo form
-    document.getElementById('demoForm')?.addEventListener('submit', async (e) => {
+    // Demo form submission
+    document.getElementById('demoContactForm')?.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const result = document.getElementById('demoResult');
-      result.innerHTML = '<p class="text-indigo-600">提交中...</p>';
+      const resultDiv = document.getElementById('demoSubmitResult');
       
-      // Simulate submission
+      // Show loading
+      resultDiv.innerHTML = '<p class="text-indigo-600 text-center py-8">提交中...</p>';
+      
+      // Simulate API delay
       setTimeout(() => {
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData);
-        result.innerHTML = `
-          <p class="text-green-600 font-semibold mb-2">✓ 提交成功！</p>
-          <pre class="bg-gray-100 p-3 rounded text-sm">${JSON.stringify(data, null, 2)}</pre>
-          <p class="text-gray-500 text-sm mt-2">在实际使用中，数据会保存到您的后台</p>
+        
+        resultDiv.innerHTML = `
+          <div class="space-y-4">
+            <div class="flex items-center gap-2 text-green-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span class="font-semibold">提交成功！</span>
+            </div>
+            <div class="bg-gray-100 p-4 rounded-lg">
+              <p class="text-sm text-gray-600 mb-2">提交的数据：</p>
+              <pre class="text-sm overflow-x-auto">${JSON.stringify(data, null, 2)}</pre>
+            </div>
+            <div class="bg-blue-50 p-4 rounded-lg">
+              <p class="text-sm text-blue-800">
+                在实际使用中，数据会保存到您的后台，您可以在控制台查看所有提交。
+              </p>
+            </div>
+            <button onclick="showDemoTab('results')" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition">
+              查看控制台示例 →
+            </button>
+          </div>
         `;
+        
+        // Add to results tab
+        const now = new Date().toLocaleString('zh-CN');
+        const resultsList = document.querySelector('#demo-content-results .space-y-3');
+        if (resultsList) {
+          const newResult = document.createElement('div');
+          newResult.className = 'border border-gray-200 rounded-lg p-4 bg-white animate-pulse';
+          newResult.innerHTML = `
+            <div class="flex justify-between items-start mb-2">
+              <span class="text-sm text-gray-500">${now}</span>
+              <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">刚刚</span>
+            </div>
+            <pre class="bg-gray-50 p-3 rounded text-sm overflow-x-auto">${JSON.stringify(data, null, 2)}</pre>
+          `;
+          resultsList.insertBefore(newResult, resultsList.firstChild);
+          setTimeout(() => newResult.classList.remove('animate-pulse'), 1000);
+        }
+        
         e.target.reset();
-      }, 1000);
+      }, 800);
     });
 
     function upgrade() {
