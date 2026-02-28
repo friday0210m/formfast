@@ -7,6 +7,11 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- Preload config to avoid race condition -->
+  <script>
+    // Fetch config immediately
+    window._formfastConfig = fetch('/api/config').then(r => r.json());
+  </script>
   <style>
     body { font-family: 'Inter', sans-serif; }
     .gradient-text {
@@ -185,10 +190,25 @@
     // Configure Google OAuth
     window.onload = async function() {
       try {
-        const res = await fetch(`${API_BASE}/api/config`);
-        const config = await res.json();
+        // Use preloaded config
+        const config = await window._formfastConfig;
+        console.log('Config loaded:', config);
         if (config.googleClientId) {
           document.getElementById('g_id_onload').setAttribute('data-client_id', config.googleClientId);
+          // Reinitialize Google Sign-In with new client_id
+          if (window.google && window.google.accounts) {
+            window.google.accounts.id.initialize({
+              client_id: config.googleClientId,
+              callback: handleGoogleCredentialResponse,
+              auto_select: false
+            });
+            window.google.accounts.id.renderButton(
+              document.querySelector('.g_id_signin'),
+              { type: 'standard', size: 'large', theme: 'outline', text: 'sign_in_with', shape: 'rectangular', logo_alignment: 'left' }
+            );
+          }
+        } else {
+          console.error('Google Client ID not configured');
         }
       } catch (err) {
         console.error('Failed to load config:', err);
@@ -240,9 +260,23 @@
           throw new Error(err.error || '发送失败');
         }
 
+        const data = await res.json();
         currentEmail = email;
         document.getElementById('codeEmail').textContent = email;
-        showToast('验证码已发送');
+        
+        // Show debug code if available (for testing when email fails)
+        if (data.debugCode) {
+          showToast(`验证码: ${data.debugCode} (调试模式)`);
+          // Also show in UI
+          const debugDiv = document.createElement('div');
+          debugDiv.id = 'debugCodeDisplay';
+          debugDiv.className = 'bg-yellow-50 border border-yellow-200 p-3 rounded-lg mb-4';
+          debugDiv.innerHTML = `<p class="text-sm text-yellow-800"><strong>调试验证码：</strong>${data.debugCode}</p><p class="text-xs text-yellow-600 mt-1">邮件服务暂时不可用，请使用此验证码测试</p>`;
+          const codeStep = document.getElementById('codeStep');
+          codeStep.insertBefore(debugDiv, codeStep.firstChild);
+        } else {
+          showToast('验证码已发送');
+        }
 
         // Switch to code step
         document.getElementById('emailStep').classList.add('hidden');

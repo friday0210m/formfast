@@ -1,6 +1,7 @@
 export declare function sendEmailCode(email: string): Promise<{
     success: boolean;
     error?: string;
+    debugCode?: string;
 }>;
 export declare function verifyEmailCode(email: string, code: string): Promise<boolean>;
 export declare function handleGoogleAuth(token: string): Promise<{
