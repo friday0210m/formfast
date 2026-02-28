@@ -71,11 +71,13 @@
         <div class="flex items-center">
           <a href="/" class="text-2xl font-bold gradient-text">FormFast</a>
         </div>
-        <div class="flex items-center space-x-6">
+        <div class="flex items-center space-x-6" id="navLinks">
           <a href="#features" class="text-gray-600 hover:text-gray-900">功能</a>
           <a href="#pricing" class="text-gray-600 hover:text-gray-900">定价</a>
           <a href="#docs" class="text-gray-600 hover:text-gray-900">文档</a>
-          <button onclick="showDashboard()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+          <a href="/login.html" class="text-gray-600 hover:text-gray-900" id="loginLink">登录</a>
+          <a href="/dashboard.html" class="text-gray-600 hover:text-gray-900 hidden" id="dashboardLink">控制台</a>
+          <button onclick="handleGetStarted()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition" id="getStartedBtn">
             开始使用
           </button>
         </div>

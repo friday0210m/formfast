@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>订阅管理 - FormFast</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .gradient-text {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .loading-spinner {
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .feature-check {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2310b981'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 13l4 4L19 7'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+    }
+    .feature-cross {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 18L18 6M6 6l12 12'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+    }
+    .plan-card {
+      transition: all 0.3s ease;
+    }
+    .plan-card:hover {
+      transform: translateY(-4px);
+    }
+    .popular-badge {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Navigation -->
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <a href="/" class="text-2xl font-bold gradient-text">FormFast</a>
+        </div>
+        <div class="flex items-center space-x-6">
+          <span id="userEmail" class="text-gray-600 text-sm hidden sm:block"></span>
+          <a href="/dashboard.html" class="text-gray-600 hover:text-gray-900">控制台</a>
+          <a href="/subscription.html" class="text-indigo-600 font-medium">订阅</a>
+          <button onclick="logout()" class="text-gray-600 hover:text-gray-900">退出</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <h1 class="text-3xl font-bold text-gray-900 mb-4">选择适合您的方案</h1>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">从免费开始，随时升级到专业版解锁更多功能</p>
+    </div>
+
+    <!-- Current Plan Banner -->
+    <div id="currentPlanBanner" class="mb-12 bg-indigo-50 border border-indigo-200 rounded-xl p-6 hidden">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <p class="text-sm text-indigo-600 font-medium">当前方案</p>
+          <h2 id="currentPlanName" class="text-2xl font-bold text-gray-900">免费版</h2>
+          <p id="currentPlanStatus" class="text-gray-600 mt-1">享受基础功能</p>
+        </div>
+        <div id="proActions" class="hidden flex gap-3">
+          <button onclick="openCustomerPortal()" class="bg-white text-indigo-600 px-6 py-3 rounded-xl font-semibold border border-indigo-200 hover:bg-indigo-50 transition">
+            管理订阅
+          </button>
+        </div>
+        <div id="freeActions">
+          <button onclick="scrollToPlans()" class="bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition">
+            升级到专业版
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pricing Cards -->
+    <div id="pricingSection" class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+      <!-- Free Plan -->
+      <div class="plan-card bg-white rounded-2xl shadow-sm border-2 border-gray-200 p-8 relative" id="freePlanCard">
+        <div class="mb-6">
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">免费版</h3>
+          <div class="flex items-baseline gap-1">
+            <span class="text-4xl font-bold text-gray-900">¥0</span>
+            <span class="text-gray-500">/月</span>
+          </div>
+          <p class="text-gray-600 mt-2 text-sm">适合个人项目和小型网站</p>
+        </div>
+
+        <ul class="space-y-4 mb-8">
+          <li class="flex items-start gap-3">
+            <div class="w-5 h-5 feature-check flex-shrink-0 mt-0.5"></div>
+            <div>
+              <span class="text-gray-700">最多 3 个表单</span>
+              <p class="text-sm text-gray-500">创建和管理您的表单</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <div class="w-5 h-5 feature-check flex-shrink-0 mt-0.5"></div>
+            <div>
+              <span class="text-gray-700">每月 100 次提交</span>
+              <p class="text-sm text-gray-500">每月重置提交次数</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <div class="w-5 h-5 feature-check flex-shrink-0 mt-0.5"></div>
+            <div>
+              <span class="text-gray-700">基础数据导出</span>
+              <p class="text-sm text-gray-500">CSV 格式导出数据</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <div class="w-5 h-5 feature-check flex-shrink-0 mt-0.5"></div>
+            <div>
+              <span class="text-gray-700">邮件通知</span>
+              <p class="text-sm text-gray-500">新提交时邮件提醒</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <div class="w-5 h-5 feature-cross flex-shrink-0 mt-0.5"></div>
+            <div>
+              <span class="text-gray-400">Webhook 集成</span>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <div class="w-5 h-5 feature-cross flex-shrink-0 mt-0.5"></div>
+            <div>
+              <span class="text-gray-400">数据分析</span>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <div class="w-5 h-5 feature-cross flex-shrink-0 mt-0.5"></div>
+            <div>
+              <span class="text-gray-400">优先支持</span>
+            </div>
+          </li>
+        </ul>
+
+        <button id="freePlanBtn" class="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold cursor-default">
+          当前方案
+        </button>
+      </div>
+
+      <!-- Pro Plan -->
+      <div class="plan-card bg-white rounded-2xl shadow-lg border-2 border-indigo-600 p-8 relative" id="proPlanCard">
+        <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+          <span class="popular-badge text-white text-sm font-medium px-4 py-1 rounded-full">推荐</span>
+        </div>
+
+        <div class="mb-6">
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">专业版</h3>
+          <div class="flex items-baseline gap-1">
+            <span class="text-4xl font-bold text-gray-900">¥49</span>
+            <span class="text-gray-500">/月</span>
+          </div>
+          <p class="text-gray-600 mt-2 text-sm">适合专业开发者和企业</p>
+        </div>
+
+        <ul class="space-y-4 mb-8">
+          <li class="flex items-start gap-3">
+            <div class="w-5 h-5 feature-check flex-shrink-0 mt-0.5"></div>
+            <div>
+              <span class="text-gray-700 font-medium">最多 100 个表单</span>
+              <p class="text-sm text-gray-500">满足大型项目需求</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <div class="w-5 h-5 feature-check flex-shrink-0 mt-0.5"></div>
+            <div>
+              <span class="text-gray-700 font-medium">无限提交</span>
+              <p class="text-sm text-gray-500">无限制接收表单数据</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <div class="w-5 h-5 feature-check flex-shrink-0 mt-0.5"></div>
+            <div>
+              <span class="text-gray-700 font-medium">Webhook 集成</span>
+              <p class="text-sm text-gray-500">自动推送到 Slack、Discord 等</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <div class="w-5 h-5 feature-check flex-shrink-0 mt-0.5"></div>
+            <div>
+              <span class="text-gray-700 font-medium">数据分析仪表板</span>
+              <p class="text-sm text-gray-500">可视化数据洞察</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <div class="w-5 h-5 feature-check flex-shrink-0 mt-0.5"></div>
+            <div>
+              <span class="text-gray-700 font-medium">API 访问</span>
+              <p class="text-sm text-gray-500">程序化管理表单</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <div class="w-5 h-5 feature-check flex-shrink-0 mt-0.5"></div>
+            <div>
+              <span class="text-gray-700 font-medium">自定义域名</span>
+              <p class="text-sm text-gray-500">使用您自己的域名</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <div class="w-5 h-5 feature-check flex-shrink-0 mt-0.5"></div>
+            <div>
+              <span class="text-gray-700 font-medium">优先支持</span>
+              <p class="text-sm text-gray-500">24小时内响应</p>
+            </div>
+          </li>
+        </ul>
+
+        <button id="proPlanBtn" onclick="upgradeToPro()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition flex items-center justify-center gap-2">
+          <span id="proBtnText">升级到专业版</span>
+          <span id="proBtnLoading" class="hidden">
+            <svg class="loading-spinner h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="max-w-3xl mx-auto mt-16">
+      <h2 class="text-2xl font-bold text-center text-gray-900 mb-8">常见问题</h2>
+      <div class="space-y-4">
+        <div class="bg-white rounded-xl p-6 shadow-sm">
+          <h3 class="font-semibold text-gray-900 mb-2">如何计费？</h3>
+          <p class="text-gray-600">专业版按月计费，¥49/月。您可以随时取消订阅，取消后将在当前计费周期结束时降级为免费版。</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm">
+          <h3 class="font-semibold text-gray-900 mb-2">可以退款吗？</h3>
+          <p class="text-gray-600">如果您对服务不满意，可以在订阅后 7 天内申请全额退款。</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm">
+          <h3 class="font-semibold text-gray-900 mb-2">如何取消订阅？</h3>
+          <p class="text-gray-600">您可以在"管理订阅"页面随时取消订阅。取消后，您仍可使用专业版功能直到当前计费周期结束。</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm">
+          <h3 class="font-semibold text-gray-900 mb-2">支持哪些支付方式？</h3>
+          <p class="text-gray-600">我们支持信用卡、借记卡和支付宝等多种支付方式。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="text-center mt-12">
+      <p class="text-gray-600">还有其他问题？</p>
+      <a href="mailto:support@formfast.io" class="text-indigo-600 hover:text-indigo-700 font-medium">联系客服团队 →</a>
+    </div>
+  </main>
+
+  <!-- Success Modal -->
+  <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
+    <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center">
+      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+      <h3 class="text-xl font-bold text-gray-900 mb-2">订阅成功！</h3>
+      <p class="text-gray-600 mb-6">感谢您升级到专业版。您的账户已激活所有高级功能。</p>
+      <button onclick="closeSuccessModal()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition">
+        前往控制台
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-4 right-4 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+    <span id="toastMessage"></span>
+  </div>
+
+  <script>
+    const API_BASE = window.location.origin;
+    let userInfo = null;
+
+    // Check authentication
+    const userEmail = localStorage.getItem('formfast_user_email');
+    if (!userEmail) {
+      window.location.href = '/login.html?redirect=/subscription.html';
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('userEmail').textContent = userEmail;
+      loadUserInfo();
+
+      // Check for success/cancel from Stripe
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('success') === 'true') {
+        showSuccessModal();
+        // Clean URL
+        window.history.replaceState({}, document.title, '/subscription.html');
+      } else if (urlParams.get('canceled') === 'true') {
+        showToast('支付已取消');
+        window.history.replaceState({}, document.title, '/subscription.html');
+      }
+    });
+
+    // Load user info
+    async function loadUserInfo() {
+      try {
+        const res = await fetch(`${API_BASE}/api/me`, {
+          headers: { 'X-User-Email': userEmail }
+        });
+
+        if (res.status === 401) {
+          logout();
+          return;
+        }
+
+        if (!res.ok) throw new Error('获取用户信息失败');
+
+        userInfo = await res.json();
+        updateUI();
+      } catch (err) {
+        console.error('Load user info error:', err);
+        showToast('加载用户信息失败');
+      }
+    }
+
+    // Update UI based on subscription status
+    function updateUI() {
+      const isPro = userInfo.subscriptionStatus === 'pro';
+      const banner = document.getElementById('currentPlanBanner');
+      const currentPlanName = document.getElementById('currentPlanName');
+      const currentPlanStatus = document.getElementById('currentPlanStatus');
+      const freePlanBtn = document.getElementById('freePlanBtn');
+      const proPlanBtn = document.getElementById('proPlanBtn');
+      const proBtnText = document.getElementById('proBtnText');
+      const freeActions = document.getElementById('freeActions');
+      const proActions = document.getElementById('proActions');
+
+      banner.classList.remove('hidden');
+
+      if (isPro) {
+        currentPlanName.textContent = '专业版';
+        currentPlanStatus.textContent = '享受全部高级功能';
+        banner.classList.remove('bg-indigo-50', 'border-indigo-200');
+        banner.classList.add('bg-gradient-to-r', 'from-indigo-50', 'to-purple-50', 'border-indigo-300');
+
+        freePlanBtn.textContent = '降级';
+        freePlanBtn.classList.remove('bg-gray-100', 'text-gray-700', 'cursor-default');
+        freePlanBtn.classList.add('bg-white', 'text-gray-700', 'border', 'border-gray-300', 'hover:bg-gray-50');
+        freePlanBtn.onclick = () => openCustomerPortal();
+
+        proPlanBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+        proPlanBtn.classList.add('bg-green-600', 'hover:bg-green-700', 'cursor-default');
+        proBtnText.textContent = '当前方案';
+        proPlanBtn.disabled = true;
+
+        freeActions.classList.add('hidden');
+        proActions.classList.remove('hidden');
+      } else {
+        currentPlanName.textContent = '免费版';
+        currentPlanStatus.textContent = `已创建 ${userInfo.formCount || 0}/${userInfo.maxForms} 个表单`;
+
+        freePlanBtn.textContent = '当前方案';
+        freePlanBtn.classList.add('cursor-default');
+
+        proPlanBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+        proBtnText.textContent = '升级到专业版';
+
+        freeActions.classList.remove('hidden');
+        proActions.classList.add('hidden');
+      }
+    }
+
+    // Upgrade to Pro
+    async function upgradeToPro() {
+      if (userInfo?.subscriptionStatus === 'pro') return;
+
+      const btn = document.getElementById('proPlanBtn');
+      const btnText = document.getElementById('proBtnText');
+      const btnLoading = document.getElementById('proBtnLoading');
+
+      btn.disabled = true;
+      btnText.textContent = '处理中...';
+      btnLoading.classList.remove('hidden');
+
+      try {
+        const res = await fetch(`${API_BASE}/api/checkout`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Email': userEmail
+          }
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || '创建支付会话失败');
+        }
+
+        const data = await res.json();
+
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error('支付链接无效');
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+        btn.disabled = false;
+        btnText.textContent = '升级到专业版';
+        btnLoading.classList.add('hidden');
+      }
+    }
+
+    // Open customer portal
+    async function openCustomerPortal() {
+      showToast('客户门户功能即将推出');
+    }
+
+    // Scroll to plans
+    function scrollToPlans() {
+      document.getElementById('pricingSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Show success modal
+    function showSuccessModal() {
+      document.getElementById('successModal').classList.remove('hidden');
+      document.getElementById('successModal').classList.add('flex');
+    }
+
+    // Close success modal
+    function closeSuccessModal() {
+      document.getElementById('successModal').classList.add('hidden');
+      document.getElementById('successModal').classList.remove('flex');
+      window.location.href = '/dashboard.html';
+    }
+
+    // Logout
+    function logout() {
+      localStorage.removeItem('formfast_user_email');
+      localStorage.removeItem('formfast_user_status');
+      window.location.href = '/';
+    }
+
+    // Toast
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMessage').textContent = message;
+
+      if (type === 'error') {
+        toast.classList.remove('bg-gray-900');
+        toast.classList.add('bg-red-600');
+      } else {
+        toast.classList.remove('bg-red-600');
+        toast.classList.add('bg-gray-900');
+      }
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

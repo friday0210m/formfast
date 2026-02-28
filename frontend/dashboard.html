@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的控制台 - FormFast</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .gradient-text {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .loading-spinner {
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 16px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: modalSlide 0.3s ease;
+    }
+    @keyframes modalSlide {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .code-block {
+      background: #1a1a2e;
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 14px;
+      overflow-x: auto;
+    }
+    .tab-active {
+      color: #4f46e5;
+      border-bottom-color: #4f46e5;
+    }
+    .fade-in {
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Navigation -->
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <a href="/" class="text-2xl font-bold gradient-text">FormFast</a>
+        </div>
+        <div class="flex items-center space-x-6">
+          <span id="userEmail" class="text-gray-600 text-sm hidden sm:block"></span>
+          <a href="/dashboard.html" class="text-indigo-600 font-medium">控制台</a>
+          <a href="/subscription.html" class="text-gray-600 hover:text-gray-900">订阅</a>
+          <button onclick="logout()" class="text-gray-600 hover:text-gray-900">退出</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">我的表单</h1>
+        <p class="text-gray-600 mt-1">管理您的表单和数据</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <div id="planBadge" class="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-700">
+          免费版
+        </div>
+        <button onclick="showCreateFormModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-xl font-semibold hover:bg-indigo-700 transition flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          新建表单
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-600 mb-1">表单数量</p>
+            <p id="formCount" class="text-3xl font-bold text-gray-900">-</p>
+          </div>
+          <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+          </div>
+        </div>
+        <p id="formLimit" class="text-sm text-gray-500 mt-2">最多 3 个表单</p>
+      </div>
+
+      <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-600 mb-1">本月提交</p>
+            <p id="submissionCount" class="text-3xl font-bold text-gray-900">-</p>
+          </div>
+          <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+          </div>
+        </div>
+        <p id="submissionLimit" class="text-sm text-gray-500 mt-2">每月 100 次提交</p>
+      </div>
+
+      <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-600 mb-1">账户状态</p>
+            <p id="accountStatus" class="text-3xl font-bold text-gray-900">免费</p>
+          </div>
+          <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+        </div>
+        <a href="/subscription.html" class="text-sm text-indigo-600 hover:text-indigo-700 mt-2 inline-block">
+          升级到专业版 →
+        </a>
+      </div>
+    </div>
+
+    <!-- Forms List -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900">我的表单</h2>
+      </div>
+      <div id="formsList" class="divide-y divide-gray-200">
+        <div class="p-8 text-center">
+          <div class="loading-spinner h-8 w-8 border-2 border-indigo-600 border-t-transparent rounded-full mx-auto"></div>
+          <p class="text-gray-500 mt-2">加载中...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Create Form Modal -->
+  <div id="createFormModal" class="modal">
+    <div class="modal-content p-6">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">创建新表单</h2>
+        <button onclick="hideCreateFormModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">表单名称</label>
+          <input type="text" id="formNameInput" placeholder="例如：联系表单"
+                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <div id="createFormError" class="text-red-500 text-sm hidden"></div>
+        <button onclick="createForm()" id="createFormBtn"
+                class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition flex items-center justify-center gap-2">
+          <span id="createFormText">创建</span>
+          <span id="createFormLoading" class="hidden">
+            <svg class="loading-spinner h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </span>
+        </button>
+        <p class="text-sm text-gray-500 text-center">首次创建可能需要 30-60 秒（数据库冷启动）</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Detail Modal -->
+  <div id="formDetailModal" class="modal">
+    <div class="modal-content p-6 max-w-2xl">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold" id="detailFormName">表单详情</h2>
+        <button onclick="hideFormDetail()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex border-b border-gray-200 mb-4">
+        <button onclick="showTab('builder')" id="tab-builder"
+                class="px-4 py-2 font-medium border-b-2 tab-active">表单构建器</button>
+        <button onclick="showTab('code')" id="tab-code"
+                class="px-4 py-2 font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700">HTML代码</button>
+        <button onclick="showTab('endpoint')" id="tab-endpoint"
+                class="px-4 py-2 font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700">端点信息</button>
+      </div>
+
+      <!-- Builder Tab -->
+      <div id="content-builder" class="space-y-4">
+        <p class="text-sm text-gray-600">选择需要的字段，自动生成表单代码：</p>
+        <div id="fieldList" class="space-y-2"></div>
+        <div class="space-y-3 mt-4">
+          <div class="flex gap-2">
+            <select id="fieldType" class="w-32 px-3 py-2 border rounded-lg text-sm">
+              <option value="text">文本</option>
+              <option value="email">邮箱</option>
+              <option value="tel">电话</option>
+              <option value="number">数字</option>
+              <option value="textarea">多行</option>
+              <option value="select">下拉</option>
+            </select>
+            <input type="text" id="fieldName" placeholder="字段名称 (如: username)" class="flex-1 px-3 py-2 border rounded-lg text-sm">
+          </div>
+          <div class="flex gap-2">
+            <input type="text" id="fieldLabel" placeholder="显示标签 (如: 用户名)" class="flex-1 px-3 py-2 border rounded-lg text-sm">
+            <button onclick="addField()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium whitespace-nowrap">添加字段</button>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 mt-2">
+          <input type="checkbox" id="fieldRequired" class="w-4 h-4">
+          <label for="fieldRequired" class="text-sm text-gray-600">必填字段</label>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg mt-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">预览代码</label>
+          <pre id="builderCode" class="bg-white p-3 rounded border text-sm overflow-x-auto"></pre>
+          <button onclick="copyBuilderCode()" class="mt-2 bg-gray-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700">复制代码</button>
+        </div>
+      </div>
+
+      <!-- Code Tab -->
+      <div id="content-code" class="space-y-4 hidden">
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <label class="block text-sm font-medium text-gray-700 mb-1">基础 HTML 代码（可自定义修改）</label>
+          <pre id="detailHtml" class="bg-white p-3 rounded border text-sm overflow-x-auto"></pre>
+          <button onclick="copyHtml()" class="mt-2 bg-gray-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700">复制代码</button>
+        </div>
+      </div>
+
+      <!-- Endpoint Tab -->
+      <div id="content-endpoint" class="space-y-4 hidden">
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <label class="block text-sm font-medium text-gray-700 mb-1">表单端点</label>
+          <div class="flex gap-2">
+            <code id="detailEndpoint" class="flex-1 bg-white px-3 py-2 rounded border text-sm"></code>
+            <button onclick="copyEndpoint()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700">复制</button>
+          </div>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <label class="block text-sm font-medium text-gray-700 mb-1">API Key（查看数据时需要）</label>
+          <div class="flex gap-2">
+            <code id="detailApiKey" class="flex-1 bg-white px-3 py-2 rounded border text-sm"></code>
+            <button onclick="copyApiKey()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700">复制</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mt-6">
+        <button onclick="viewSubmissions()" class="flex-1 bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition">
+          查看提交数据
+        </button>
+        <button onclick="showRenameForm()" class="px-4 bg-gray-600 text-white py-3 rounded-xl font-semibold hover:bg-gray-700 transition">
+          重命名
+        </button>
+        <button onclick="deleteForm()" class="px-4 bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-700 transition">
+          删除
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rename Modal -->
+  <div id="renameModal" class="modal">
+    <div class="modal-content p-6 max-w-md">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">重命名表单</h2>
+        <button onclick="hideRenameForm()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">新名称</label>
+          <input type="text" id="renameInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+        <div id="renameError" class="text-red-500 text-sm hidden"></div>
+        <button onclick="confirmRename()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition">
+          确认修改
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Submissions Modal -->
+  <div id="submissionsModal" class="modal">
+    <div class="modal-content p-6 max-w-3xl">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">提交数据</h2>
+        <button onclick="hideSubmissions()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+      </div>
+      <div id="submissionsList" class="space-y-3 max-h-96 overflow-y-auto">
+        <p class="text-gray-500 text-center py-8">暂无提交数据</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-4 right-4 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+    <span id="toastMessage"></span>
+  </div>
+
+  <script>
+    const API_BASE = window.location.origin;
+    let currentForm = null;
+    let forms = [];
+    let formFields = [];
+    let userInfo = null;
+
+    // Check authentication
+    const userEmail = localStorage.getItem('formfast_user_email');
+    if (!userEmail) {
+      window.location.href = '/login.html';
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('userEmail').textContent = userEmail;
+      loadUserInfo();
+      loadForms();
+    });
+
+    // Load user info
+    async function loadUserInfo() {
+      try {
+        const res = await fetch(`${API_BASE}/api/me`, {
+          headers: { 'X-User-Email': userEmail }
+        });
+
+        if (res.status === 401) {
+          logout();
+          return;
+        }
+
+        if (!res.ok) throw new Error('获取用户信息失败');
+
+        userInfo = await res.json();
+
+        // Update UI
+        const isPro = userInfo.subscriptionStatus === 'pro';
+        document.getElementById('formCount').textContent = userInfo.formCount || 0;
+        document.getElementById('formLimit').textContent = `最多 ${userInfo.maxForms} 个表单`;
+        document.getElementById('accountStatus').textContent = isPro ? '专业版' : '免费版';
+
+        const planBadge = document.getElementById('planBadge');
+        if (isPro) {
+          planBadge.textContent = '专业版';
+          planBadge.className = 'px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-700';
+          document.getElementById('submissionLimit').textContent = '无限提交';
+        } else {
+          document.querySelector('a[href="/subscription.html"]').textContent = '升级到专业版 →';
+        }
+      } catch (err) {
+        console.error('Load user info error:', err);
+      }
+    }
+
+    // Load forms
+    async function loadForms() {
+      try {
+        const res = await fetch(`${API_BASE}/api/forms`, {
+          headers: { 'X-User-Email': userEmail }
+        });
+
+        if (res.status === 401) {
+          logout();
+          return;
+        }
+
+        if (!res.ok) throw new Error('加载失败');
+
+        const data = await res.json();
+        forms = data.forms || [];
+        renderFormsList();
+      } catch (err) {
+        document.getElementById('formsList').innerHTML = `
+          <div class="p-8 text-center">
+            <p class="text-red-500">加载失败: ${err.message}</p>
+            <button onclick="loadForms()" class="mt-2 text-indigo-600 hover:text-indigo-700">重试</button>
+          </div>
+        `;
+      }
+    }
+
+    // Render forms list
+    function renderFormsList() {
+      const container = document.getElementById('formsList');
+
+      if (forms.length === 0) {
+        container.innerHTML = `
+          <div class="p-8 text-center">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+            <p class="text-gray-500">还没有表单</p>
+            <button onclick="showCreateFormModal()" class="mt-2 text-indigo-600 hover:text-indigo-700 font-medium">创建第一个表单</button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = forms.map(form => `
+        <div class="p-6 hover:bg-gray-50 transition cursor-pointer" onclick='showFormDetail(${JSON.stringify(form)})'>
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="font-semibold text-gray-900">${form.name}</h3>
+              <p class="text-sm text-gray-500 mt-1">端点: /f/${form.id}</p>
+              <p class="text-xs text-gray-400 mt-1">创建于 ${new Date(form.created_at).toLocaleDateString()}</p>
+            </div>
+            <span class="text-indigo-600 text-sm flex items-center gap-1">
+              查看详情
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Show create form modal
+    function showCreateFormModal() {
+      document.getElementById('createFormModal').classList.add('active');
+      document.getElementById('formNameInput').focus();
+    }
+
+    function hideCreateFormModal() {
+      document.getElementById('createFormModal').classList.remove('active');
+      document.getElementById('formNameInput').value = '';
+      document.getElementById('createFormError').classList.add('hidden');
+    }
+
+    // Create form
+    async function createForm() {
+      const name = document.getElementById('formNameInput').value.trim();
+      const errorDiv = document.getElementById('createFormError');
+      const btn = document.getElementById('createFormBtn');
+      const btnText = document.getElementById('createFormText');
+      const btnLoading = document.getElementById('createFormLoading');
+
+      if (!name) {
+        errorDiv.textContent = '请输入表单名称';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      btn.disabled = true;
+      btnText.textContent = '创建中...';
+      btnLoading.classList.remove('hidden');
+      errorDiv.classList.add('hidden');
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 45000);
+
+        const res = await fetch(`${API_BASE}/api/forms`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Email': userEmail
+          },
+          body: JSON.stringify({ name }),
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (res.status === 403) {
+          const err = await res.json().catch(() => ({}));
+          if (err.upgradeRequired) {
+            if (confirm('免费用户最多只能创建 3 个表单。是否升级到专业版？')) {
+              window.location.href = '/subscription.html';
+            }
+            return;
+          }
+        }
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || '创建失败');
+        }
+
+        const data = await res.json();
+        hideCreateFormModal();
+        loadForms();
+        loadUserInfo();
+        showFormDetail(data);
+        showToast('表单创建成功');
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          errorDiv.textContent = '请求超时，请稍后重试（数据库正在启动）';
+        } else {
+          errorDiv.textContent = err.message;
+        }
+        errorDiv.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = '创建';
+        btnLoading.classList.add('hidden');
+      }
+    }
+
+    // Show form detail
+    function showFormDetail(form) {
+      currentForm = form;
+      formFields = [
+        { type: 'text', name: 'name', label: '姓名', required: true },
+        { type: 'email', name: 'email', label: '邮箱', required: true },
+        { type: 'textarea', name: 'message', label: '留言', required: false }
+      ];
+
+      document.getElementById('detailFormName').textContent = form.name;
+      document.getElementById('detailEndpoint').textContent = `${API_BASE}/f/${form.id}`;
+      document.getElementById('detailApiKey').textContent = form.api_key;
+      document.getElementById('detailHtml').textContent =
+`<form action="${API_BASE}/f/${form.id}" method="POST">
+  <input type="email" name="email" placeholder="your@email.com" required>
+  <textarea name="message" placeholder="Your message..."></textarea>
+  <button type="submit">Send</button>
+</form>`;
+
+      renderFields();
+      updateBuilderCode();
+      showTab('builder');
+      document.getElementById('formDetailModal').classList.add('active');
+    }
+
+    function hideFormDetail() {
+      document.getElementById('formDetailModal').classList.remove('active');
+    }
+
+    // Tab switching
+    function showTab(tabName) {
+      ['builder', 'code', 'endpoint'].forEach(t => {
+        document.getElementById(`content-${t}`).classList.add('hidden');
+        document.getElementById(`tab-${t}`).classList.remove('tab-active', 'border-indigo-600', 'text-indigo-600');
+        document.getElementById(`tab-${t}`).classList.add('border-transparent', 'text-gray-500');
+      });
+
+      document.getElementById(`content-${tabName}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabName}`).classList.add('tab-active', 'border-indigo-600', 'text-indigo-600');
+      document.getElementById(`tab-${tabName}`).classList.remove('border-transparent', 'text-gray-500');
+    }
+
+    // Form builder
+    function addField() {
+      const type = document.getElementById('fieldType').value;
+      const name = document.getElementById('fieldName').value.trim();
+      const label = document.getElementById('fieldLabel').value.trim();
+      const required = document.getElementById('fieldRequired').checked;
+
+      if (!name || !label) {
+        showToast('请输入字段名称和标签');
+        return;
+      }
+
+      formFields.push({ type, name, label, required });
+      document.getElementById('fieldName').value = '';
+      document.getElementById('fieldLabel').value = '';
+      document.getElementById('fieldRequired').checked = false;
+
+      renderFields();
+      updateBuilderCode();
+    }
+
+    function removeField(index) {
+      formFields.splice(index, 1);
+      renderFields();
+      updateBuilderCode();
+    }
+
+    function renderFields() {
+      const container = document.getElementById('fieldList');
+      if (formFields.length === 0) {
+        container.innerHTML = '<p class="text-gray-400 text-sm">暂无字段，请添加</p>';
+        return;
+      }
+
+      container.innerHTML = formFields.map((field, index) => `
+        <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+          <div class="flex items-center gap-3">
+            <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">${field.type}</span>
+            <span class="font-medium">${field.label}</span>
+            <span class="text-gray-400 text-sm">(${field.name})</span>
+            ${field.required ? '<span class="text-red-500 text-xs">*必填</span>' : ''}
+          </div>
+          <button onclick="removeField(${index})" class="text-red-500 hover:text-red-700 text-sm">删除</button>
+        </div>
+      `).join('');
+    }
+
+    function updateBuilderCode() {
+      let html = `<form action="${API_BASE}/f/${currentForm.id}" method="POST">\n`;
+
+      formFields.forEach(field => {
+        const required = field.required ? ' required' : '';
+        switch(field.type) {
+          case 'textarea':
+            html += `  <textarea name="${field.name}" placeholder="${field.label}"${required}></textarea>\n`;
+            break;
+          case 'select':
+            html += `  <select name="${field.name}"${required}>\n    <option value="">请选择${field.label}</option>\n  </select>\n`;
+            break;
+          default:
+            html += `  <input type="${field.type}" name="${field.name}" placeholder="${field.label}"${required}>\n`;
+        }
+      });
+
+      html += `  <button type="submit">提交</button>\n</form>`;
+      document.getElementById('builderCode').textContent = html;
+    }
+
+    // Rename form
+    function showRenameForm() {
+      if (!currentForm) return;
+      document.getElementById('renameInput').value = currentForm.name;
+      document.getElementById('renameError').classList.add('hidden');
+      document.getElementById('renameModal').classList.add('active');
+    }
+
+    function hideRenameForm() {
+      document.getElementById('renameModal').classList.remove('active');
+    }
+
+    async function confirmRename() {
+      if (!currentForm) return;
+      const newName = document.getElementById('renameInput').value.trim();
+      const errorDiv = document.getElementById('renameError');
+
+      if (!newName) {
+        errorDiv.textContent = '请输入新名称';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/api/forms/${currentForm.id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Email': userEmail
+          },
+          body: JSON.stringify({ name: newName })
+        });
+
+        if (!res.ok) throw new Error('重命名失败');
+
+        currentForm.name = newName;
+        loadForms();
+        hideRenameForm();
+        hideFormDetail();
+        showToast('重命名成功');
+      } catch (err) {
+        errorDiv.textContent = err.message;
+        errorDiv.classList.remove('hidden');
+      }
+    }
+
+    // Delete form
+    async function deleteForm() {
+      if (!currentForm) return;
+      if (!confirm(`确定要删除表单 "${currentForm.name}" 吗？此操作不可恢复！`)) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/forms/${currentForm.id}`, {
+          method: 'DELETE',
+          headers: { 'X-User-Email': userEmail }
+        });
+
+        if (!res.ok) throw new Error('删除失败');
+
+        loadForms();
+        loadUserInfo();
+        hideFormDetail();
+        showToast('表单已删除');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    // View submissions
+    async function viewSubmissions() {
+      if (!currentForm) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/forms/${currentForm.id}/submissions`, {
+          headers: { 'X-User-Email': userEmail }
+        });
+
+        if (!res.ok) throw new Error('获取失败');
+
+        const data = await res.json();
+        const list = document.getElementById('submissionsList');
+
+        if (data.submissions.length === 0) {
+          list.innerHTML = `
+            <div class="text-center py-8">
+              <p class="text-gray-500">暂无提交数据</p>
+              <p class="text-sm text-gray-400 mt-1">在您的网站上使用表单后，数据将显示在这里</p>
+            </div>
+          `;
+        } else {
+          list.innerHTML = data.submissions.map(s => `
+            <div class="border border-gray-200 rounded-lg p-4">
+              <div class="flex justify-between items-start mb-2">
+                <span class="text-sm text-gray-500">${new Date(s.created_at).toLocaleString()}</span>
+                <span class="text-xs text-gray-400">ID: ${s.id.slice(0, 8)}...</span>
+              </div>
+              <pre class="bg-gray-50 p-3 rounded text-sm overflow-x-auto">${JSON.stringify(s.data, null, 2)}</pre>
+            </div>
+          `).join('');
+        }
+
+        hideFormDetail();
+        document.getElementById('submissionsModal').classList.add('active');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    function hideSubmissions() {
+      document.getElementById('submissionsModal').classList.remove('active');
+    }
+
+    // Copy functions
+    function copyBuilderCode() {
+      navigator.clipboard.writeText(document.getElementById('builderCode').textContent);
+      showToast('已复制');
+    }
+
+    function copyHtml() {
+      navigator.clipboard.writeText(document.getElementById('detailHtml').textContent);
+      showToast('已复制');
+    }
+
+    function copyEndpoint() {
+      navigator.clipboard.writeText(document.getElementById('detailEndpoint').textContent);
+      showToast('已复制');
+    }
+
+    function copyApiKey() {
+      navigator.clipboard.writeText(document.getElementById('detailApiKey').textContent);
+      showToast('已复制');
+    }
+
+    // Logout
+    function logout() {
+      localStorage.removeItem('formfast_user_email');
+      localStorage.removeItem('formfast_user_status');
+      window.location.href = '/';
+    }
+
+    // Toast
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMessage').textContent = message;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+      }, 3000);
+    }
+
+    // Close modals on outside click
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+      });
+    });
+
+    // Enter key handlers
+    document.getElementById('formNameInput')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') createForm();
+    });
+    document.getElementById('renameInput')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') confirmRename();
+    });
+  </script>
+</body>
+</html>
